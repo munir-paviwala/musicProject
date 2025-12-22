@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Audio Map (Debug Mode)</title>
+    <title>Sonic Gallery + Curator Mode</title>
     <style>
         body { margin: 0; background: #050505; color: white; font-family: 'Helvetica Neue', sans-serif; overflow: hidden; }
         #canvas { display: block; cursor: grab; }
@@ -11,7 +11,7 @@
         /* UI Layer */
         #ui { position: absolute; top: 20px; left: 20px; pointer-events: none; mix-blend-mode: difference; z-index: 10; }
         
-        /* The "Start" Overlay - Crucial for Audio Permissions */
+        /* 1. START SCREEN */
         #start-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9);
@@ -25,39 +25,67 @@
         }
         #start-btn:hover { transform: scale(1.1); }
 
-        /* The Player UI */
+        /* 2. CENTER METADATA (Title & Note) */
         #now-playing {
-            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-            width: 300px;
-            background: rgba(20, 20, 20, 0.85); 
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 20px;
-            border-radius: 20px; 
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: 350px;
+            background: rgba(10, 10, 10, 0.8); 
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 15px 25px;
+            border-radius: 30px; 
             display: none; 
             text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
             z-index: 100;
         }
+        #np-title { font-weight: 700; font-size: 1.1em; color: #fff; margin-bottom: 5px;}
+        #np-note { font-size: 0.85em; color: #bbb; font-style: italic; line-height: 1.4;}
 
-        #np-title { font-weight: 700; font-size: 1.1em; margin-bottom: 5px; color: #fff; }
-        #np-note { font-size: 0.85em; color: #aaa; line-height: 1.4; margin-bottom: 10px; font-style: italic;}
-        #debug-log { position: absolute; bottom: 10px; left: 10px; font-family: monospace; font-size: 10px; color: #555; pointer-events: none; }
+        /* 3. VISIBLE VIDEO PLAYER (Bottom Right) */
+        #video-dock {
+            position: absolute; bottom: 30px; right: 30px;
+            width: 180px; height: 100px; /* Small thumbnail size */
+            background: #000;
+            border: 2px solid #333;
+            border-radius: 10px;
+            overflow: hidden;
+            z-index: 100;
+            display: none; /* Hidden until playing */
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        /* Hover to expand slightly */
+        #video-dock:hover { width: 300px; height: 169px; border-color: white; }
         
-        /* Hide the iframes */
-        #yt-container { position: absolute; top: 0; left: 0; opacity: 0; pointer-events: none; z-index: -1; }
+        /* The container for the actual iframe */
+        #yt-player-wrapper { width: 100%; height: 100%; pointer-events: none; } /* No clicking inside for now */
+
+        /* 4. EDITOR UI (Hidden by default) */
+        #editor-panel {
+            display: none;
+            position: absolute; top: 20px; right: 20px;
+            background: #002244; border: 1px solid #0088ff;
+            padding: 15px; width: 300px; border-radius: 8px;
+            font-family: monospace; z-index: 200;
+            box-shadow: 0 0 20px rgba(0, 100, 255, 0.5);
+        }
+        .editor-mode #editor-panel { display: block; }
+        .editor-mode #canvas { border: 4px solid #0088ff; box-sizing: border-box; }
+        textarea { width: 100%; height: 100px; background: #001122; color: #0088ff; border: none; margin-top: 10px; font-size: 10px; }
+        button.editor-btn { background: #0088ff; color: white; border: none; padding: 5px 10px; cursor: pointer; margin-top: 5px; }
+
     </style>
 </head>
 <body>
 
 <div id="start-screen">
     <h1>The Sonic Archive</h1>
-    <p style="color: #aaa; margin-bottom: 20px;">Headphones Recommended</p>
+    <p style="color: #aaa; margin-bottom: 20px;">Headphones Recommended • Shift+E for Editor</p>
     <button id="start-btn">ENTER GALLERY</button>
 </div>
 
 <div id="ui">
-    <h2>Phase 6: Inverted Drag</h2>
+    <h2>Phase 7: Curator Studio</h2>
     <p>Drag map to move | Scroll to Zoom</p>
 </div>
 
@@ -66,9 +94,20 @@
     <div id="np-note">Note</div>
 </div>
 
-<div id="debug-log">Waiting for API...</div>
+<div id="video-dock">
+    <div id="yt-player-wrapper"></div>
+</div>
 
-<div id="yt-container"></div>
+<div id="editor-panel">
+    <h3>🛠 CURATOR MODE</h3>
+    <p style="font-size: 0.8em; color: #ccc;">
+        • <b>Alt + Drag</b> Map to pan<br>
+        • <b>Drag Bubble</b> to move<br>
+        • <b>Double Click</b> map to ADD song
+    </p>
+    <button class="editor-btn" onclick="exportJSON()">EXPORT JSON</button>
+    <textarea id="export-box" placeholder="JSON will appear here..."></textarea>
+</div>
 
 <canvas id="canvas"></canvas>
 
@@ -80,70 +119,60 @@ const ctx = canvas.getContext('2d');
 const npBox = document.getElementById('now-playing');
 const npTitle = document.getElementById('np-title');
 const npNote = document.getElementById('np-note');
-const debug = document.getElementById('debug-log');
+const videoDock = document.getElementById('video-dock');
+const playerWrapper = document.getElementById('yt-player-wrapper');
 const startScreen = document.getElementById('start-screen');
-const startBtn = document.getElementById('start-btn');
+const exportBox = document.getElementById('export-box');
 
 // ==========================================
-// 1. DATA
+// 1. DATA (Initial State)
 // ==========================================
 const anchors = [
     { x: 0, y: 0, color: "#ff4400", radius: 900 }, 
     { x: -400, y: -400, color: "#220033", radius: 800 } 
 ];
 
-const songs = [
-    { id: "AP1", ytId: "LlJxnlFDRz4", x: 0, y: -150, title: "After Midnight", note: "Late night driving vibes.", offset: Math.random()*100 },
-    { id: "AP2", ytId: "Vd7F5VHz5BI", x: -140, y: 100, title: "All Night (Live)", note: "Raw energy.", offset: Math.random()*100 },
-    { id: "AP3", ytId: "N8dexd1PqEw", x: 140, y: 100, title: "By My Side", note: "Melodic and soft.", offset: Math.random()*100 }
+// This list is what you will update using the Editor!
+let songs = [
+    { id: "AP1", ytId: "LlJxnlFDRz4", x: 0, y: -150, title: "After Midnight", note: "Late night driving vibes.", offset: 10 },
+    { id: "AP2", ytId: "Vd7F5VHz5BI", x: -140, y: 100, title: "All Night (Live)", note: "Raw energy.", offset: 50 },
+    { id: "AP3", ytId: "N8dexd1PqEw", x: 140, y: 100, title: "By My Side", note: "Melodic and soft.", offset: 80 }
 ];
 
 // ==========================================
-// 2. YOUTUBE ENGINE (Robust)
+// 2. YOUTUBE ENGINE
 // ==========================================
-let ytPlayers = {};
+let playerInstance = null; // We only need ONE player now!
 let apiReady = false;
-let userHasInteracted = false; // Essential for browser policy
 
 function onYouTubeIframeAPIReady() {
-    debug.innerText = "API Loaded. Building players...";
     apiReady = true;
-    
-    songs.forEach(song => {
-        const divId = `yt-player-${song.id}`;
-        const p = document.createElement('div');
-        p.id = divId;
-        document.getElementById('yt-container').appendChild(p);
-
-        ytPlayers[song.id] = new YT.Player(divId, {
-            height: '200', width: '200', videoId: song.ytId,
-            playerVars: { 'playsinline': 1, 'controls': 0, 'disablekb': 1 },
-            events: {
-                'onError': onPlayerError
-            }
-        });
+    // We create ONE player in the dock
+    playerInstance = new YT.Player('yt-player-wrapper', {
+        height: '100%', width: '100%',
+        videoId: '', // Start empty
+        playerVars: { 'playsinline': 1, 'controls': 0, 'disablekb': 1 },
     });
-    debug.innerText = "Players Ready. Waiting for User...";
 }
 
-function onPlayerError(event) {
-    console.error("YT Error:", event.data);
-    debug.innerText = "YT Error Code: " + event.data + " (Check AdBlock)";
+function playSong(song) {
+    if (!playerInstance || !playerInstance.loadVideoById) return;
+    videoDock.style.display = "block"; // Show the dock
+    playerInstance.loadVideoById(song.ytId);
+    npTitle.innerText = song.title;
+    npNote.innerText = song.note;
+    npBox.style.display = "block";
 }
 
-function playSong(songId) {
-    if (!apiReady || !ytPlayers[songId]) return;
-    ytPlayers[songId].playVideo();
-    debug.innerText = "Playing: " + songId;
-}
-
-function stopSong(songId) {
-    if (!apiReady || !ytPlayers[songId]) return;
-    ytPlayers[songId].pauseVideo();
+function stopSong() {
+    if (!playerInstance || !playerInstance.stopVideo) return;
+    playerInstance.stopVideo();
+    videoDock.style.display = "none"; // Hide dock
+    npBox.style.display = "none";
 }
 
 // ==========================================
-// 3. INPUTS (Inverted Drag)
+// 3. INPUTS & EDITOR STATE
 // ==========================================
 let player = { x: 0, y: 0, size: 8 };
 let camera = { zoom: 1, targetZoom: 1 };
@@ -153,19 +182,27 @@ let time = 0;
 let isDragging = false;
 let lastMouse = { x: 0, y: 0 };
 
-// START BUTTON LOGIC
-startBtn.addEventListener('click', () => {
-    userHasInteracted = true;
+// EDITOR VARIABLES
+let isEditorMode = false;
+let draggedSong = null;
+
+// Start Button
+document.getElementById('start-btn').addEventListener('click', () => {
     startScreen.style.display = 'none';
-    debug.innerText = "Audio Unlocked.";
-    // Optional: Pre-warm players (mute and play for 0.1s) to ensure they wake up?
-    // For now, let's keep it simple.
+    if(playerInstance) playerInstance.playVideo(); // Wake up iOS audio
+    setTimeout(() => { if(playerInstance) playerInstance.stopVideo(); }, 100);
 });
 
+// Window Resize
 window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
 window.dispatchEvent(new Event('resize'));
 
-window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+// Inputs
+window.addEventListener('keydown', e => {
+    keys[e.key.toLowerCase()] = true;
+    // Toggle Editor: Shift + E
+    if (e.key.toLowerCase() === 'e' && e.shiftKey) toggleEditor();
+});
 window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 window.addEventListener('wheel', e => {
     e.preventDefault();
@@ -173,28 +210,123 @@ window.addEventListener('wheel', e => {
     camera.targetZoom = Math.max(0.2, Math.min(3.0, camera.targetZoom));
 }, { passive: false });
 
-// DRAG LOGIC (REVERSED)
-canvas.addEventListener('mousedown', e => { isDragging = true; lastMouse = { x: e.clientX, y: e.clientY }; });
-window.addEventListener('mouseup', () => isDragging = false);
+
+// ==========================================
+// 4. MOUSE INTERACTION (The Complex Part)
+// ==========================================
+
+// Helper: Convert Screen X/Y to World X/Y
+function toWorld(screenX, screenY) {
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    const wx = (screenX - cx) / camera.zoom + player.x;
+    const wy = (screenY - cy) / camera.zoom + player.y;
+    return { x: wx, y: wy };
+}
+
+canvas.addEventListener('mousedown', e => {
+    isDragging = true;
+    lastMouse = { x: e.clientX, y: e.clientY };
+    const mouseWorld = toWorld(e.clientX, e.clientY);
+
+    // If Editor Mode: Check if clicking a song to drag
+    if (isEditorMode) {
+        songs.forEach(song => {
+            const dist = Math.sqrt((mouseWorld.x - song.x)**2 + (mouseWorld.y - song.y)**2);
+            if (dist < 40) {
+                draggedSong = song; // We caught one!
+                isDragging = false; // Don't drag map
+            }
+        });
+    }
+});
+
+window.addEventListener('mouseup', () => { isDragging = false; draggedSong = null; });
+
 canvas.addEventListener('mousemove', e => {
-    if (!isDragging) return;
     const dx = e.clientX - lastMouse.x;
     const dy = e.clientY - lastMouse.y;
     lastMouse = { x: e.clientX, y: e.clientY };
-    
-    // REVERSED: Subtracting DX means dragging mouse Right moves the Player Left.
-    // This creates the feeling of "Pulling the map Right".
-    player.x -= dx / camera.zoom;
-    player.y -= dy / camera.zoom;
+
+    // Mode A: Moving a Song (Editor)
+    if (draggedSong) {
+        draggedSong.x += dx / camera.zoom;
+        draggedSong.y += dy / camera.zoom;
+        return;
+    }
+
+    // Mode B: Moving the Map
+    if (isDragging) {
+        // Normal Drag: Moves Player (Inverted feel)
+        // If in Editor Mode, maybe Alt key is required? For now, let's keep it simple.
+        if (isEditorMode && !keys['alt']) return; // In editor, require Alt to pan so you don't accidentally pan while editing?
+        // Actually, let's just keep pan standard.
+        
+        player.x -= dx / camera.zoom;
+        player.y -= dy / camera.zoom;
+    }
 });
 
+// EDITOR: Double Click to Add
+canvas.addEventListener('dblclick', e => {
+    if (!isEditorMode) return;
+    
+    const world = toWorld(e.clientX, e.clientY);
+    const ytUrl = prompt("Enter YouTube URL (or ID) for this spot:");
+    if (!ytUrl) return;
+
+    // Extract ID (Simple regex)
+    let vidId = ytUrl;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = ytUrl.match(regExp);
+    if (match && match[2].length === 11) vidId = match[2];
+
+    const title = prompt("Enter Song Title:", "New Song");
+    const note = prompt("Enter Note:", "Added via Curator Mode");
+
+    songs.push({
+        id: "S" + Date.now(), // Unique ID
+        ytId: vidId,
+        x: world.x,
+        y: world.y,
+        title: title || "Untitled",
+        note: note || "",
+        offset: Math.random() * 100
+    });
+});
+
+
 // ==========================================
-// 4. RENDER LOOP
+// 5. EDITOR UTILS
+// ==========================================
+function toggleEditor() {
+    isEditorMode = !isEditorMode;
+    document.body.classList.toggle('editor-mode', isEditorMode);
+    
+    if(isEditorMode) {
+        alert("🔧 EDITOR MODE ACTIVE\n\n• Drag Bubbles to move them\n• Double-click background to ADD song\n• Click 'Export JSON' when done");
+    }
+}
+
+function exportJSON() {
+    // Clean up the data (remove internal offset/radius for clean saving if needed, but keeping them is fine)
+    const cleanSongs = songs.map(s => ({
+        id: s.id, ytId: s.ytId, x: Math.round(s.x), y: Math.round(s.y), 
+        title: s.title, note: s.note, offset: Math.round(s.offset)
+    }));
+    exportBox.value = JSON.stringify(cleanSongs, null, 2);
+    exportBox.select();
+    document.execCommand('copy');
+    alert("JSON copied to clipboard! Paste it into the 'songs' array in your code.");
+}
+
+// ==========================================
+// 6. RENDER LOOP
 // ==========================================
 function draw() {
     time += 0.04; 
 
-    // WASD Movement (Standard)
+    // WASD Movement
     const speed = 6;
     if (keys['w'] || keys['arrowup']) player.y -= speed / camera.zoom;
     if (keys['s'] || keys['arrowdown']) player.y += speed / camera.zoom;
@@ -203,7 +335,7 @@ function draw() {
 
     camera.zoom += (camera.targetZoom - camera.zoom) * 0.1;
 
-    // Draw Background
+    // Background
     ctx.fillStyle = "#000"; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.save();
@@ -224,16 +356,26 @@ function draw() {
     });
     ctx.globalCompositeOperation = "source-over";
 
+    // Grid lines for Editor Mode (Optional visual aid)
+    if (isEditorMode) {
+        ctx.strokeStyle = "rgba(0, 100, 255, 0.2)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for(let i=-2000; i<2000; i+=200) { ctx.moveTo(i, -2000); ctx.lineTo(i, 2000); ctx.moveTo(-2000, i); ctx.lineTo(2000, i); }
+        ctx.stroke();
+    }
+
     // Songs
     let touchingAnySong = false;
     songs.forEach(song => {
-        const floatY = song.y + Math.sin(time + song.offset) * 6;
+        const floatY = isEditorMode ? song.y : song.y + Math.sin(time + song.offset) * 6; // Stop floating if editing
         const dx = player.x - song.x;
         const dy = player.y - floatY;
         const dist = Math.sqrt(dx*dx + dy*dy);
         const isTouching = dist < (35 + player.size);
         const currentRadius = isTouching ? 50 : 35;
 
+        // Draw Bubble
         ctx.beginPath();
         ctx.arc(song.x, floatY, currentRadius, 0, Math.PI * 2);
         
@@ -242,22 +384,18 @@ function draw() {
             ctx.shadowBlur = 30; ctx.shadowColor = "white";
             ctx.fillStyle = "white"; ctx.fill(); ctx.shadowBlur = 0;
 
-            if (currentSongId !== song.id && userHasInteracted) {
-                if (currentSongId) stopSong(currentSongId);
-                playSong(song.id);
+            if (currentSongId !== song.id && !isEditorMode) { // Don't auto-play while editing
+                playSong(song);
                 currentSongId = song.id;
-                npTitle.innerText = song.title;
-                npNote.innerText = song.note;
-                npBox.style.display = "block";
             }
         } else {
-            ctx.fillStyle = "rgba(255,255,255,0.05)";
-            ctx.strokeStyle = "rgba(255,255,255,0.4)";
+            ctx.fillStyle = isEditorMode ? "rgba(0, 100, 255, 0.2)" : "rgba(255,255,255,0.05)";
+            ctx.strokeStyle = isEditorMode ? "#0088ff" : "rgba(255,255,255,0.4)";
             ctx.lineWidth = 1.5;
             ctx.fill(); ctx.stroke();
         }
 
-        if (camera.zoom > 0.5) {
+        if (camera.zoom > 0.5 || isEditorMode) {
              ctx.fillStyle = isTouching ? "black" : "rgba(255,255,255,0.7)";
              ctx.font = isTouching ? "bold 12px Arial" : "11px Arial";
              ctx.textAlign = "center";
@@ -265,10 +403,9 @@ function draw() {
         }
     });
 
-    if (!touchingAnySong && currentSongId !== null) {
-        stopSong(currentSongId);
+    if (!touchingAnySong && currentSongId !== null && !isEditorMode) {
+        stopSong();
         currentSongId = null;
-        npBox.style.display = "none";
     }
 
     // Player
