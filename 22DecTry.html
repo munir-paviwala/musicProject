@@ -2,16 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sonic Gallery + Curator Mode</title>
+    <title>Sonic Gallery: Phase 8</title>
     <style>
         body { margin: 0; background: #050505; color: white; font-family: 'Helvetica Neue', sans-serif; overflow: hidden; }
         #canvas { display: block; cursor: grab; }
         #canvas:active { cursor: grabbing; }
         
-        /* UI Layer */
         #ui { position: absolute; top: 20px; left: 20px; pointer-events: none; mix-blend-mode: difference; z-index: 10; }
         
-        /* 1. START SCREEN */
+        /* START SCREEN */
         #start-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9);
@@ -25,10 +24,10 @@
         }
         #start-btn:hover { transform: scale(1.1); }
 
-        /* 2. CENTER METADATA (Title & Note) */
+        /* CENTER METADATA */
         #now-playing {
             position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            width: 350px;
+            width: 400px;
             background: rgba(10, 10, 10, 0.8); 
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.15);
@@ -36,31 +35,37 @@
             border-radius: 30px; 
             display: none; 
             text-align: center;
-            z-index: 100;
+            z-index: 90; /* Behind video dock if they overlap */
         }
         #np-title { font-weight: 700; font-size: 1.1em; color: #fff; margin-bottom: 5px;}
         #np-note { font-size: 0.85em; color: #bbb; font-style: italic; line-height: 1.4;}
 
-        /* 3. VISIBLE VIDEO PLAYER (Bottom Right) */
+        /* VIDEO DOCK (New Bigger Sizes) */
         #video-dock {
             position: absolute; bottom: 30px; right: 30px;
-            width: 180px; height: 100px; /* Small thumbnail size */
+            /* Default: Index Card Size */
+            width: 320px; height: 180px; 
             background: #000;
             border: 2px solid #333;
-            border-radius: 10px;
+            border-radius: 12px;
             overflow: hidden;
             z-index: 100;
-            display: none; /* Hidden until playing */
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: none; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy transition */
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
         }
-        /* Hover to expand slightly */
-        #video-dock:hover { width: 300px; height: 169px; border-color: white; }
+        /* Hover/Active: Cinema Size */
+        #video-dock:hover { 
+            width: 640px; height: 360px; 
+            border-color: white; 
+            transform: translate(-20px, -20px); /* Pop out slightly */
+        }
         
-        /* The container for the actual iframe */
-        #yt-player-wrapper { width: 100%; height: 100%; pointer-events: none; } /* No clicking inside for now */
+        #yt-player-wrapper { width: 100%; height: 100%; pointer-events: none; } 
+        /* Allow clicking inside when hovered so you can pause/seek */
+        #video-dock:hover #yt-player-wrapper { pointer-events: auto; }
 
-        /* 4. EDITOR UI (Hidden by default) */
+        /* EDITOR PANEL */
         #editor-panel {
             display: none;
             position: absolute; top: 20px; right: 20px;
@@ -71,8 +76,9 @@
         }
         .editor-mode #editor-panel { display: block; }
         .editor-mode #canvas { border: 4px solid #0088ff; box-sizing: border-box; }
-        textarea { width: 100%; height: 100px; background: #001122; color: #0088ff; border: none; margin-top: 10px; font-size: 10px; }
-        button.editor-btn { background: #0088ff; color: white; border: none; padding: 5px 10px; cursor: pointer; margin-top: 5px; }
+        textarea { width: 100%; height: 80px; background: #001122; color: #0088ff; border: none; margin-top: 10px; font-size: 10px; }
+        button.editor-btn { background: #0088ff; color: white; border: none; padding: 8px 10px; cursor: pointer; margin-top: 5px; width: 100%; border-radius: 4px; font-weight: bold;}
+        button.editor-btn:hover { background: #0066cc; }
 
     </style>
 </head>
@@ -85,7 +91,7 @@
 </div>
 
 <div id="ui">
-    <h2>Phase 7: Curator Studio</h2>
+    <h2>Phase 8: Bulk Import Ready</h2>
     <p>Drag map to move | Scroll to Zoom</p>
 </div>
 
@@ -99,13 +105,14 @@
 </div>
 
 <div id="editor-panel">
-    <h3>🛠 CURATOR MODE</h3>
-    <p style="font-size: 0.8em; color: #ccc;">
+    <h3 style="margin-top:0;">🛠 CURATOR MODE</h3>
+    <p style="font-size: 0.8em; color: #ccc; margin-bottom: 10px;">
         • <b>Alt + Drag</b> Map to pan<br>
         • <b>Drag Bubble</b> to move<br>
-        • <b>Double Click</b> map to ADD song
+        • <b>Double Click</b> to ADD song
     </p>
-    <button class="editor-btn" onclick="exportJSON()">EXPORT JSON</button>
+    <button class="editor-btn" onclick="scatterSongs()">💥 SCATTER PILE (Use after import)</button>
+    <button class="editor-btn" onclick="exportJSON()">📋 EXPORT JSON</button>
     <textarea id="export-box" placeholder="JSON will appear here..."></textarea>
 </div>
 
@@ -120,65 +127,234 @@ const npBox = document.getElementById('now-playing');
 const npTitle = document.getElementById('np-title');
 const npNote = document.getElementById('np-note');
 const videoDock = document.getElementById('video-dock');
-const playerWrapper = document.getElementById('yt-player-wrapper');
 const startScreen = document.getElementById('start-screen');
 const exportBox = document.getElementById('export-box');
 
 // ==========================================
-// 1. DATA (Initial State)
+// 1. DATA (Paste your Imported List Here!)
 // ==========================================
 const anchors = [
     { x: 0, y: 0, color: "#ff4400", radius: 900 }, 
     { x: -400, y: -400, color: "#220033", radius: 800 } 
 ];
 
-// This list is what you will update using the Editor!
 let songs = [
-[
+    [
   {
-    "id": "AP1",
-    "ytId": "LlJxnlFDRz4",
+    "id": "IMP0_1766439597286",
+    "ytId": "xTylJljWiCE",
     "x": 0,
-    "y": -150,
-    "title": "After Midnight",
-    "note": "Late night driving vibes.",
-    "offset": 10
+    "y": 0,
+    "title": "Play all",
+    "note": "",
+    "offset": 36.00970710058559
   },
   {
-    "id": "AP2",
-    "ytId": "Vd7F5VHz5BI",
-    "x": -140,
-    "y": 100,
-    "title": "All Night (Live)",
-    "note": "Raw energy.",
-    "offset": 50
+    "id": "IMP1_1766439597286",
+    "ytId": "1lgzhwomMD0",
+    "x": 0,
+    "y": 0,
+    "title": "Shuffle play",
+    "note": "",
+    "offset": 25.965243762073776
   },
   {
-    "id": "AP3",
-    "ytId": "N8dexd1PqEw",
-    "x": 140,
-    "y": 100,
-    "title": "By My Side",
-    "note": "Melodic and soft.",
-    "offset": 80
+    "id": "IMP2_1766439597286",
+    "ytId": "NVgIBlwOrSI",
+    "x": 0,
+    "y": 0,
+    "title": "3:13Now playing",
+    "note": "",
+    "offset": 63.83583234796437
   },
   {
-    "id": "S1766438812755",
-    "ytId": "BWczaSneA0Q",
-    "x": -313,
-    "y": -262,
-    "title": "Maanu - Jhol (Acoustic)",
-    "note": "Added via Curator Mode",
-    "offset": 3
+    "id": "IMP3_1766439597286",
+    "ytId": "_zmmKjxjmFI",
+    "x": 0,
+    "y": 0,
+    "title": "2:52Now playing",
+    "note": "",
+    "offset": 18.256793156492712
   },
   {
-    "id": "S1766438884254",
-    "ytId": "https://youtu.be/76EVGzBQmSY?si=UuoE18oUpPN6SB3-",
-    "x": -196,
-    "y": -462,
-    "title": "2 AM | Coke Stuido Pakistan | Season 15 | Star Shah x Zeeshan Ali",
-    "note": "One of the best one from this Coke Studio season",
-    "offset": 10
+    "id": "IMP4_1766439597286",
+    "ytId": "eMib_fQMliw",
+    "x": 0,
+    "y": 0,
+    "title": "2:07Now playing",
+    "note": "",
+    "offset": 31.910715829680026
+  },
+  {
+    "id": "IMP5_1766439597286",
+    "ytId": "kz6LVN2Spo0",
+    "x": 0,
+    "y": 0,
+    "title": "2:46Now playing",
+    "note": "",
+    "offset": 78.75973279470632
+  },
+  {
+    "id": "IMP6_1766439597286",
+    "ytId": "MsgDNBmPt9M",
+    "x": 0,
+    "y": 0,
+    "title": "Hass Hass - Diljit Dosanjh (sped up)",
+    "note": "",
+    "offset": 93.02206415139095
+  },
+  {
+    "id": "IMP7_1766439597286",
+    "ytId": "MG_dV5dTzTE",
+    "x": 0,
+    "y": 0,
+    "title": "ed sheeran - shape of you [ sped up ] ly",
+    "note": "",
+    "offset": 92.60693540272248
+  },
+  {
+    "id": "IMP8_1766439597286",
+    "ytId": "y6fT2xE7Jr0",
+    "x": 0,
+    "y": 0,
+    "title": "humraah - sped up",
+    "note": "",
+    "offset": 14.621283410477904
+  },
+  {
+    "id": "IMP9_1766439597286",
+    "ytId": "7DuN2Orwjbw",
+    "x": 0,
+    "y": 0,
+    "title": "Na Ja (sped up)",
+    "note": "",
+    "offset": 61.078743083658985
+  },
+  {
+    "id": "IMP10_1766439597286",
+    "ytId": "QK24bYxgvy8",
+    "x": 0,
+    "y": 0,
+    "title": "Tu aake dekh le- sped up",
+    "note": "",
+    "offset": 1.0562507215135297
+  },
+  {
+    "id": "IMP11_1766439597286",
+    "ytId": "1KTk6xO2OCA",
+    "x": 0,
+    "y": 0,
+    "title": "Wishes (sped up)",
+    "note": "",
+    "offset": 10.839337359230417
+  },
+  {
+    "id": "IMP12_1766439597286",
+    "ytId": "5mXtufkZ14Q",
+    "x": 0,
+    "y": 0,
+    "title": "Heat Waves - Glass Animals (Sped up + Re",
+    "note": "",
+    "offset": 25.29731214913674
+  },
+  {
+    "id": "IMP13_1766439597286",
+    "ytId": "LiNBnYBMtGg",
+    "x": 0,
+    "y": 0,
+    "title": "teri yeh adaa janiye (sped up reverb)",
+    "note": "",
+    "offset": 85.14220130374856
+  },
+  {
+    "id": "IMP14_1766439597286",
+    "ytId": "c-2qNAGrjSs",
+    "x": 0,
+    "y": 0,
+    "title": "Tauba Tauba (sped up)",
+    "note": "",
+    "offset": 31.71245791514574
+  },
+  {
+    "id": "IMP15_1766439597286",
+    "ytId": "qSU23ZcCXBk",
+    "x": 0,
+    "y": 0,
+    "title": "bandook meri laila (two layered+sped up)",
+    "note": "",
+    "offset": 74.85673685941983
+  },
+  {
+    "id": "IMP16_1766439597286",
+    "ytId": "nTWj1oZMOEk",
+    "x": 0,
+    "y": 0,
+    "title": "subha hone na de (sped up)💃",
+    "note": "",
+    "offset": 58.537405512182076
+  },
+  {
+    "id": "IMP17_1766439597286",
+    "ytId": "SAgHZLX90SU",
+    "x": 0,
+    "y": 0,
+    "title": "Shubh - You and Me (sped up)",
+    "note": "",
+    "offset": 50.36155779778883
+  },
+  {
+    "id": "IMP18_1766439597286",
+    "ytId": "wZLRSXYI12o",
+    "x": 0,
+    "y": 0,
+    "title": "Sharn - Mi Amor ( sped up )",
+    "note": "",
+    "offset": 99.87555642612364
+  },
+  {
+    "id": "IMP19_1766439597286",
+    "ytId": "HykHxOoCHi8",
+    "x": 0,
+    "y": 0,
+    "title": "Anuv Jain - Husn | sped up",
+    "note": "",
+    "offset": 20.314446616245284
+  },
+  {
+    "id": "IMP20_1766439597286",
+    "ytId": "WlCg1hp7JMA",
+    "x": 0,
+    "y": 0,
+    "title": "jaana samjho na (sped up reverb)",
+    "note": "",
+    "offset": 43.49745088060204
+  },
+  {
+    "id": "IMP21_1766439597286",
+    "ytId": "wcd80k5vLqE",
+    "x": 0,
+    "y": 0,
+    "title": "Chuttamalle [Sped Up + Reverb] | Devara ",
+    "note": "",
+    "offset": 69.2185868698301
+  },
+  {
+    "id": "IMP22_1766439597286",
+    "ytId": "AZhe2er0Rf4",
+    "x": 0,
+    "y": 0,
+    "title": "Amplifier - Sped Up",
+    "note": "",
+    "offset": 91.35537406976788
+  },
+  {
+    "id": "IMP23_1766439597286",
+    "ytId": "LCC6TnPq5Y4",
+    "x": 0,
+    "y": 0,
+    "title": "Tera Ghata (Rajasthani)",
+    "note": "",
+    "offset": 92.97995227002829
   }
 ]
 ];
@@ -186,37 +362,69 @@ let songs = [
 // ==========================================
 // 2. YOUTUBE ENGINE
 // ==========================================
-let playerInstance = null; // We only need ONE player now!
+let playerInstance = null;
 let apiReady = false;
 
 function onYouTubeIframeAPIReady() {
     apiReady = true;
-    // We create ONE player in the dock
     playerInstance = new YT.Player('yt-player-wrapper', {
-        height: '100%', width: '100%',
-        videoId: '', // Start empty
-        playerVars: { 'playsinline': 1, 'controls': 0, 'disablekb': 1 },
+        height: '100%', width: '100%', videoId: '',
+        playerVars: { 'playsinline': 1, 'controls': 1, 'disablekb': 1 }, // Controls ON for Cinema Mode
     });
 }
 
 function playSong(song) {
     if (!playerInstance || !playerInstance.loadVideoById) return;
-    videoDock.style.display = "block"; // Show the dock
+    videoDock.style.display = "block";
     playerInstance.loadVideoById(song.ytId);
     npTitle.innerText = song.title;
-    npNote.innerText = song.note;
+    npNote.innerText = song.note || "";
     npBox.style.display = "block";
 }
 
 function stopSong() {
     if (!playerInstance || !playerInstance.stopVideo) return;
     playerInstance.stopVideo();
-    videoDock.style.display = "none"; // Hide dock
+    videoDock.style.display = "none";
     npBox.style.display = "none";
 }
 
 // ==========================================
-// 3. INPUTS & EDITOR STATE
+// 3. EDITOR TOOLS
+// ==========================================
+let isEditorMode = false;
+let draggedSong = null;
+
+function toggleEditor() {
+    isEditorMode = !isEditorMode;
+    document.body.classList.toggle('editor-mode', isEditorMode);
+}
+
+// SCATTER FUNCTION: Takes songs at (0,0) and explodes them outward
+function scatterSongs() {
+    if(!confirm("This will randomly move songs that are stuck at (0,0). Continue?")) return;
+    songs.forEach(song => {
+        if (Math.abs(song.x) < 5 && Math.abs(song.y) < 5) {
+            // Random scatter within 500px
+            song.x = (Math.random() - 0.5) * 1000;
+            song.y = (Math.random() - 0.5) * 1000;
+        }
+    });
+}
+
+function exportJSON() {
+    const cleanSongs = songs.map(s => ({
+        id: s.id, ytId: s.ytId, x: Math.round(s.x), y: Math.round(s.y), 
+        title: s.title, note: s.note, offset: Math.round(s.offset)
+    }));
+    exportBox.value = JSON.stringify(cleanSongs, null, 2);
+    exportBox.select();
+    document.execCommand('copy');
+    alert("Copied to clipboard!");
+}
+
+// ==========================================
+// 4. ENGINE
 // ==========================================
 let player = { x: 0, y: 0, size: 8 };
 let camera = { zoom: 1, targetZoom: 1 };
@@ -226,25 +434,16 @@ let time = 0;
 let isDragging = false;
 let lastMouse = { x: 0, y: 0 };
 
-// EDITOR VARIABLES
-let isEditorMode = false;
-let draggedSong = null;
-
-// Start Button
 document.getElementById('start-btn').addEventListener('click', () => {
     startScreen.style.display = 'none';
-    if(playerInstance) playerInstance.playVideo(); // Wake up iOS audio
+    if(playerInstance) playerInstance.playVideo();
     setTimeout(() => { if(playerInstance) playerInstance.stopVideo(); }, 100);
 });
 
-// Window Resize
 window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
 window.dispatchEvent(new Event('resize'));
-
-// Inputs
 window.addEventListener('keydown', e => {
     keys[e.key.toLowerCase()] = true;
-    // Toggle Editor: Shift + E
     if (e.key.toLowerCase() === 'e' && e.shiftKey) toggleEditor();
 });
 window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
@@ -254,12 +453,6 @@ window.addEventListener('wheel', e => {
     camera.targetZoom = Math.max(0.2, Math.min(3.0, camera.targetZoom));
 }, { passive: false });
 
-
-// ==========================================
-// 4. MOUSE INTERACTION (The Complex Part)
-// ==========================================
-
-// Helper: Convert Screen X/Y to World X/Y
 function toWorld(screenX, screenY) {
     const cx = canvas.width / 2;
     const cy = canvas.height / 2;
@@ -272,178 +465,105 @@ canvas.addEventListener('mousedown', e => {
     isDragging = true;
     lastMouse = { x: e.clientX, y: e.clientY };
     const mouseWorld = toWorld(e.clientX, e.clientY);
-
-    // If Editor Mode: Check if clicking a song to drag
     if (isEditorMode) {
         songs.forEach(song => {
             const dist = Math.sqrt((mouseWorld.x - song.x)**2 + (mouseWorld.y - song.y)**2);
-            if (dist < 40) {
-                draggedSong = song; // We caught one!
-                isDragging = false; // Don't drag map
-            }
+            if (dist < 40) draggedSong = song;
         });
     }
 });
 
 window.addEventListener('mouseup', () => { isDragging = false; draggedSong = null; });
-
 canvas.addEventListener('mousemove', e => {
     const dx = e.clientX - lastMouse.x;
     const dy = e.clientY - lastMouse.y;
     lastMouse = { x: e.clientX, y: e.clientY };
-
-    // Mode A: Moving a Song (Editor)
     if (draggedSong) {
         draggedSong.x += dx / camera.zoom;
         draggedSong.y += dy / camera.zoom;
         return;
     }
-
-    // Mode B: Moving the Map
     if (isDragging) {
-        // Normal Drag: Moves Player (Inverted feel)
-        // If in Editor Mode, maybe Alt key is required? For now, let's keep it simple.
-        if (isEditorMode && !keys['alt']) return; // In editor, require Alt to pan so you don't accidentally pan while editing?
-        // Actually, let's just keep pan standard.
-        
+        if (isEditorMode && !keys['alt']) return; 
         player.x -= dx / camera.zoom;
         player.y -= dy / camera.zoom;
     }
 });
 
-// EDITOR: Double Click to Add
 canvas.addEventListener('dblclick', e => {
     if (!isEditorMode) return;
-    
     const world = toWorld(e.clientX, e.clientY);
-    const ytUrl = prompt("Enter YouTube URL (or ID) for this spot:");
+    const ytUrl = prompt("Enter YouTube URL:");
     if (!ytUrl) return;
-
-    // Extract ID (Simple regex)
     let vidId = ytUrl;
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = ytUrl.match(regExp);
     if (match && match[2].length === 11) vidId = match[2];
 
-    const title = prompt("Enter Song Title:", "New Song");
-    const note = prompt("Enter Note:", "Added via Curator Mode");
-
     songs.push({
-        id: "S" + Date.now(), // Unique ID
-        ytId: vidId,
-        x: world.x,
-        y: world.y,
-        title: title || "Untitled",
-        note: note || "",
+        id: "S" + Date.now(), ytId: vidId, x: world.x, y: world.y,
+        title: prompt("Title:", "New Song") || "Untitled", note: prompt("Note:", "") || "",
         offset: Math.random() * 100
     });
 });
 
-
-// ==========================================
-// 5. EDITOR UTILS
-// ==========================================
-function toggleEditor() {
-    isEditorMode = !isEditorMode;
-    document.body.classList.toggle('editor-mode', isEditorMode);
-    
-    if(isEditorMode) {
-        alert("🔧 EDITOR MODE ACTIVE\n\n• Drag Bubbles to move them\n• Double-click background to ADD song\n• Click 'Export JSON' when done");
-    }
-}
-
-function exportJSON() {
-    // Clean up the data (remove internal offset/radius for clean saving if needed, but keeping them is fine)
-    const cleanSongs = songs.map(s => ({
-        id: s.id, ytId: s.ytId, x: Math.round(s.x), y: Math.round(s.y), 
-        title: s.title, note: s.note, offset: Math.round(s.offset)
-    }));
-    exportBox.value = JSON.stringify(cleanSongs, null, 2);
-    exportBox.select();
-    document.execCommand('copy');
-    alert("JSON copied to clipboard! Paste it into the 'songs' array in your code.");
-}
-
-// ==========================================
-// 6. RENDER LOOP
-// ==========================================
 function draw() {
     time += 0.04; 
-
-    // WASD Movement
-    const speed = 6;
-    if (keys['w'] || keys['arrowup']) player.y -= speed / camera.zoom;
-    if (keys['s'] || keys['arrowdown']) player.y += speed / camera.zoom;
-    if (keys['a'] || keys['arrowleft']) player.x -= speed / camera.zoom;
-    if (keys['d'] || keys['arrowright']) player.x += speed / camera.zoom;
-
+    if (keys['w'] || keys['arrowup']) player.y -= 6 / camera.zoom;
+    if (keys['s'] || keys['arrowdown']) player.y += 6 / camera.zoom;
+    if (keys['a'] || keys['arrowleft']) player.x -= 6 / camera.zoom;
+    if (keys['d'] || keys['arrowright']) player.x += 6 / camera.zoom;
     camera.zoom += (camera.targetZoom - camera.zoom) * 0.1;
 
-    // Background
     ctx.fillStyle = "#000"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     ctx.save();
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.scale(camera.zoom, camera.zoom);
     ctx.translate(-player.x, -player.y);
 
-    // Anchors
     ctx.globalCompositeOperation = "screen"; 
     anchors.forEach(anchor => {
         const grad = ctx.createRadialGradient(anchor.x, anchor.y, 0, anchor.x, anchor.y, anchor.radius);
         grad.addColorStop(0, anchor.color);
         grad.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(anchor.x, anchor.y, anchor.radius, 0, Math.PI * 2);
-        ctx.fill(); 
+        ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(anchor.x, anchor.y, anchor.radius, 0, Math.PI * 2); ctx.fill(); 
     });
     ctx.globalCompositeOperation = "source-over";
 
-    // Grid lines for Editor Mode (Optional visual aid)
     if (isEditorMode) {
-        ctx.strokeStyle = "rgba(0, 100, 255, 0.2)";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
+        ctx.strokeStyle = "rgba(0, 100, 255, 0.2)"; ctx.lineWidth = 1; ctx.beginPath();
         for(let i=-2000; i<2000; i+=200) { ctx.moveTo(i, -2000); ctx.lineTo(i, 2000); ctx.moveTo(-2000, i); ctx.lineTo(2000, i); }
         ctx.stroke();
     }
 
-    // Songs
     let touchingAnySong = false;
     songs.forEach(song => {
-        const floatY = isEditorMode ? song.y : song.y + Math.sin(time + song.offset) * 6; // Stop floating if editing
+        const floatY = isEditorMode ? song.y : song.y + Math.sin(time + song.offset) * 6;
         const dx = player.x - song.x;
         const dy = player.y - floatY;
         const dist = Math.sqrt(dx*dx + dy*dy);
         const isTouching = dist < (35 + player.size);
         const currentRadius = isTouching ? 50 : 35;
 
-        // Draw Bubble
-        ctx.beginPath();
-        ctx.arc(song.x, floatY, currentRadius, 0, Math.PI * 2);
+        ctx.beginPath(); ctx.arc(song.x, floatY, currentRadius, 0, Math.PI * 2);
         
         if (isTouching) {
             touchingAnySong = true;
-            ctx.shadowBlur = 30; ctx.shadowColor = "white";
-            ctx.fillStyle = "white"; ctx.fill(); ctx.shadowBlur = 0;
-
-            if (currentSongId !== song.id && !isEditorMode) { // Don't auto-play while editing
+            ctx.shadowBlur = 30; ctx.shadowColor = "white"; ctx.fillStyle = "white"; ctx.fill(); ctx.shadowBlur = 0;
+            if (currentSongId !== song.id && !isEditorMode) {
                 playSong(song);
                 currentSongId = song.id;
             }
         } else {
             ctx.fillStyle = isEditorMode ? "rgba(0, 100, 255, 0.2)" : "rgba(255,255,255,0.05)";
             ctx.strokeStyle = isEditorMode ? "#0088ff" : "rgba(255,255,255,0.4)";
-            ctx.lineWidth = 1.5;
-            ctx.fill(); ctx.stroke();
+            ctx.lineWidth = 1.5; ctx.fill(); ctx.stroke();
         }
 
         if (camera.zoom > 0.5 || isEditorMode) {
              ctx.fillStyle = isTouching ? "black" : "rgba(255,255,255,0.7)";
              ctx.font = isTouching ? "bold 12px Arial" : "11px Arial";
-             ctx.textAlign = "center";
-             ctx.fillText(song.title, song.x, floatY + currentRadius + 15);
+             ctx.textAlign = "center"; ctx.fillText(song.title, song.x, floatY + currentRadius + 15);
         }
     });
 
@@ -451,11 +571,8 @@ function draw() {
         stopSong();
         currentSongId = null;
     }
-
-    // Player
-    ctx.fillStyle = "white"; ctx.beginPath();
-    ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2); ctx.fill();
-
+    
+    ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
     requestAnimationFrame(draw);
 }
