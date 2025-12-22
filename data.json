@@ -1,0 +1,170 @@
+{
+  "anchors": [
+    { "id": "A1", "x": 0, "y": 0, "color": "#ff4400", "radius": 900, "name": "The Core" },
+    { "id": "A2", "x": -400, "y": -400, "color": "#220033", "radius": 800, "name": "Deep Space" }
+  ],
+  "songs": [
+    {
+      "id": "S1",
+      "ytId": "MsgDNBmPt9M",
+      "x": -56,
+    "y": -274,
+    "title": "Hass Hass - Diljit Dosanjh",
+    "note": "Sped up vibes",
+    "offset": 10
+  },
+  {
+    "id": "S2",
+    "ytId": "MG_dV5dTzTE",
+    "x": 200,
+    "y": -250,
+    "title": "Shape of You",
+    "note": "Sped up",
+    "offset": 20
+  },
+  {
+    "id": "S3",
+    "ytId": "y6fT2xE7Jr0",
+    "x": 378,
+    "y": -114,
+    "title": "Humraah (sped up)",
+    "note": "Part of bolly sped up collections",
+    "offset": 30
+  },
+  {
+    "id": "S4",
+    "ytId": "7DuN2Orwjbw",
+    "x": 346,
+    "y": 27,
+    "title": "Na Ja (Sped up)",
+    "note": "",
+    "offset": 40
+  },
+  {
+    "id": "S5",
+    "ytId": "QK24bYxgvy8",
+    "x": 25,
+    "y": -362,
+    "title": "Tu aake dekh le",
+    "note": "Chill vibes",
+    "offset": 50
+  },
+  {
+    "id": "S6",
+    "ytId": "1KTk6xO2OCA",
+    "x": -154,
+    "y": 243,
+    "title": "Wishes (Sped up)",
+    "note": "",
+    "offset": 60
+  },
+  {
+    "id": "S7",
+    "ytId": "5mXtufkZ14Q",
+    "x": 315,
+    "y": -205,
+    "title": "Glass Animals - Heat Waves (sped up)",
+    "note": "Love this version more for some reason",
+    "offset": 70
+  },
+  {
+    "id": "S8",
+    "ytId": "LiNBnYBMtGg",
+    "x": 614,
+    "y": 21,
+    "title": "Teri Yeh Adaa (sped up)",
+    "note": "Love the 2000s vibe sped up",
+    "offset": 80
+  },
+  {
+    "id": "S9",
+    "ytId": "c-2qNAGrjSs",
+    "x": 568,
+    "y": -85,
+    "title": "Tauba Tauba (sped up)",
+    "note": "",
+    "offset": 90
+  },
+  {
+    "id": "S10",
+    "ytId": "qSU23ZcCXBk",
+    "x": 469,
+    "y": -187,
+    "title": "Bandook Meri Laila (sped up)",
+    "note": "",
+    "offset": 15
+  },
+  {
+    "id": "S11",
+    "ytId": "nTWj1oZMOEk",
+    "x": 469,
+    "y": -9,
+    "title": "Subha Hone Na De (sped up)",
+    "note": "Party classic but sped up",
+    "offset": 25
+  },
+  {
+    "id": "S12",
+    "ytId": "SAgHZLX90SU",
+    "x": 164,
+    "y": 378,
+    "title": "Shubh - You and Me (sped up)",
+    "note": "The Punjabi vibe in the speed",
+    "offset": 35
+  },
+  {
+    "id": "S13",
+    "ytId": "wZLRSXYI12o",
+    "x": -267,
+    "y": 38,
+    "title": "Mi Amor",
+    "note": "Sharn",
+    "offset": 45
+  },
+  {
+    "id": "S14",
+    "ytId": "HykHxOoCHi8",
+    "x": 52,
+    "y": -471,
+    "title": "Husn",
+    "note": "Anuv Jain",
+    "offset": 55
+  },
+  {
+    "id": "S15",
+    "ytId": "WlCg1hp7JMA",
+    "x": -86,
+    "y": -424,
+    "title": "Jaana Samjho Na",
+    "note": "Reverb",
+    "offset": 65
+  },
+  {
+    "id": "S16",
+    "ytId": "wcd80k5vLqE",
+    "x": 224,
+    "y": -85,
+    "title": "Chuttamalle (Sped up)",
+    "note": "",
+    "offset": 75
+  },
+  {
+    "id": "S17",
+    "ytId": "AZhe2er0Rf4",
+    "x": -261,
+    "y": 160,
+    "title": "Amplifier (sped up)",
+    "note": "Forgotten Gem but better ",
+    "offset": 85
+  },
+  {
+    "id": "S18",
+    "ytId": "LCC6TnPq5Y4",
+    "x": -179,
+    "y": -151,
+    "title": "Tera Ghata",
+    "note": "Rajasthani",
+    "offset": 95
+  }
+]
+}

@@ -2,120 +2,90 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sonic Gallery: Phase 8</title>
+    <title>Sonic Gallery: The Listener</title>
     <style>
-        body { margin: 0; background: #050505; color: white; font-family: 'Helvetica Neue', sans-serif; overflow: hidden; }
+        body { margin: 0; background: #000; color: white; font-family: 'Helvetica Neue', sans-serif; overflow: hidden; }
         #canvas { display: block; cursor: grab; }
         #canvas:active { cursor: grabbing; }
         
-        #ui { position: absolute; top: 20px; left: 20px; pointer-events: none; mix-blend-mode: difference; z-index: 10; }
+        #ui { position: absolute; top: 20px; left: 20px; pointer-events: none; mix-blend-mode: difference; z-index: 20; }
         
-        /* START SCREEN */
-        #start-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 999;
+        /* JOURNEY PANEL */
+        #journey-panel {
+            position: absolute; top: 150px; left: 20px; pointer-events: auto;
+            display: flex; flex-direction: column; gap: 10px;
         }
-        #start-btn {
-            padding: 15px 40px; font-size: 1.2em; cursor: pointer;
-            background: white; border: none; border-radius: 50px; font-weight: bold;
-            transition: transform 0.2s;
+        .journey-btn {
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer;
+            backdrop-filter: blur(5px); font-size: 0.9em; transition: all 0.2s;
+            text-align: left; display: flex; align-items: center; gap: 10px;
         }
-        #start-btn:hover { transform: scale(1.1); }
+        .journey-btn:hover { background: rgba(255,255,255,0.3); transform: translateX(5px); }
+        
+        #auto-btn { 
+            border-color: #00ffff; color: #00ffff; background: rgba(0, 255, 255, 0.1); 
+            display: none; 
+        }
+        #skip-btn {
+            border-color: #ffaa00; color: #ffaa00; background: rgba(255, 170, 0, 0.1);
+            display: none; /* Only shows when listening in autopilot */
+        }
 
-        /* CENTER METADATA */
+        /* NOW PLAYING */
         #now-playing {
             position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            width: 400px;
-            background: rgba(10, 10, 10, 0.8); 
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.15);
-            padding: 15px 25px;
-            border-radius: 30px; 
-            display: none; 
-            text-align: center;
-            z-index: 90; /* Behind video dock if they overlap */
+            width: 400px; background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15); padding: 15px 25px; border-radius: 30px; 
+            display: none; text-align: center; z-index: 90;
         }
         #np-title { font-weight: 700; font-size: 1.1em; color: #fff; margin-bottom: 5px;}
-        #np-note { font-size: 0.85em; color: #bbb; font-style: italic; line-height: 1.4;}
-
-        /* VIDEO DOCK (New Bigger Sizes) */
+        
         #video-dock {
             position: absolute; bottom: 30px; right: 30px;
-            /* Default: Index Card Size */
-            width: 320px; height: 180px; 
-            background: #000;
-            border: 2px solid #333;
-            border-radius: 12px;
-            overflow: hidden;
-            z-index: 100;
-            display: none; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy transition */
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            width: 320px; height: 180px; background: #000; border: 2px solid #333; border-radius: 12px;
+            overflow: hidden; z-index: 100; display: none; 
+            transition: all 0.4s;
         }
-        /* Hover/Active: Cinema Size */
-        #video-dock:hover { 
-            width: 640px; height: 360px; 
-            border-color: white; 
-            transform: translate(-20px, -20px); /* Pop out slightly */
-        }
-        
+        #video-dock:hover { width: 640px; height: 360px; border-color: white; transform: translate(-20px, -20px); }
         #yt-player-wrapper { width: 100%; height: 100%; pointer-events: none; } 
-        /* Allow clicking inside when hovered so you can pause/seek */
         #video-dock:hover #yt-player-wrapper { pointer-events: auto; }
 
-        /* EDITOR PANEL */
-        #editor-panel {
-            display: none;
-            position: absolute; top: 20px; right: 20px;
-            background: #002244; border: 1px solid #0088ff;
-            padding: 15px; width: 300px; border-radius: 8px;
-            font-family: monospace; z-index: 200;
-            box-shadow: 0 0 20px rgba(0, 100, 255, 0.5);
+        #start-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 999;
         }
-        .editor-mode #editor-panel { display: block; }
-        .editor-mode #canvas { border: 4px solid #0088ff; box-sizing: border-box; }
-        textarea { width: 100%; height: 80px; background: #001122; color: #0088ff; border: none; margin-top: 10px; font-size: 10px; }
-        button.editor-btn { background: #0088ff; color: white; border: none; padding: 8px 10px; cursor: pointer; margin-top: 5px; width: 100%; border-radius: 4px; font-weight: bold;}
-        button.editor-btn:hover { background: #0066cc; }
-
+        #start-btn { padding: 15px 40px; font-size: 1.2em; cursor: pointer; border-radius: 50px; font-weight: bold; border:none;}
     </style>
 </head>
 <body>
 
 <div id="start-screen">
     <h1>The Sonic Archive</h1>
-    <p style="color: #aaa; margin-bottom: 20px;">Headphones Recommended • Shift+E for Editor</p>
-    <button id="start-btn">ENTER GALLERY</button>
+    <p style="color: #888; margin-bottom: 20px;">Use Local Server / GitHub Pages</p>
+    <button id="start-btn">BEGIN EXPLORATION</button>
 </div>
 
 <div id="ui">
-    <h2>Phase 8: Bulk Import Ready</h2>
-    <p>Drag map to move | Scroll to Zoom</p>
+    <h2>Phase 13: The Listener</h2>
+    <p>Autopilot stops to listen.</p>
+</div>
+
+<div id="journey-panel">
+    <button class="journey-btn" onclick="startRandomJourney()">🎲 Guide Me Somewhere</button>
+    <button id="auto-btn" class="journey-btn" onclick="toggleAutopilot()">▶ Start Tour</button>
+    <button id="skip-btn" class="journey-btn" onclick="forceNextSong()">⏭ Skip to Next</button>
+    <button class="journey-btn" onclick="clearTrace()">🧹 Erase Memory Trace</button>
+    <button class="journey-btn" onclick="clearGuide()" id="clear-guide-btn" style="display:none; border-color: #ff4444; color: #ff8888;">❌ Stop Guide</button>
 </div>
 
 <div id="now-playing">
     <div id="np-title">Song Title</div>
-    <div id="np-note">Note</div>
+    <div id="np-status" style="font-size: 0.8em; color: cyan; margin-bottom: 5px; display:none;">AUTOPILOT: LISTENING...</div>
+    <div id="np-note" style="color:#aaa; font-style:italic; font-size:0.9em;"></div>
 </div>
 
-<div id="video-dock">
-    <div id="yt-player-wrapper"></div>
-</div>
-
-<div id="editor-panel">
-    <h3 style="margin-top:0;">🛠 CURATOR MODE</h3>
-    <p style="font-size: 0.8em; color: #ccc; margin-bottom: 10px;">
-        • <b>Alt + Drag</b> Map to pan<br>
-        • <b>Drag Bubble</b> to move<br>
-        • <b>Double Click</b> to ADD song
-    </p>
-    <button class="editor-btn" onclick="scatterSongs()">💥 SCATTER PILE (Use after import)</button>
-    <button class="editor-btn" onclick="exportJSON()">📋 EXPORT JSON</button>
-    <textarea id="export-box" placeholder="JSON will appear here..."></textarea>
-</div>
-
+<div id="video-dock"><div id="yt-player-wrapper"></div></div>
 <canvas id="canvas"></canvas>
 
 <script src="https://www.youtube.com/iframe_api"></script>
@@ -123,257 +93,365 @@
 <script>
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const npBox = document.getElementById('now-playing');
-const npTitle = document.getElementById('np-title');
-const npNote = document.getElementById('np-note');
-const videoDock = document.getElementById('video-dock');
-const startScreen = document.getElementById('start-screen');
-const exportBox = document.getElementById('export-box');
+const fogCanvas = document.createElement('canvas');
+const fogCtx = fogCanvas.getContext('2d');
+
+// GAME STATE
+let player = { x: 0, y: 0, size: 8 };
+let camera = { zoom: 1, targetZoom: 1 };
+let keys = {};
+let mouse = { x: 0, y: 0, dragging: false };
+let pathHistory = []; 
+let guidePath = null; 
+let guideTarget = null; 
+
+// AUTOPILOT STATE
+let isAutopilot = false;
+let autopilotState = "IDLE"; // "MOVING" or "LISTENING"
+let autopilotIndex = 1; 
+
+// DATA
+let songs = [];
+let anchors = [];
+
+fetch('data.json').then(r => r.json()).then(data => {
+    songs = data.songs || [];
+    anchors = data.anchors || [];
+}).catch(e => console.error("Data Error:", e));
 
 // ==========================================
-// 1. DATA (Paste your Imported List Here!)
+// 1. SMART PATHFINDING
 // ==========================================
-const anchors = [
-    { x: 0, y: 0, color: "#ff4400", radius: 900 }, 
-    { x: -400, y: -400, color: "#220033", radius: 800 } 
-];
+function startRandomJourney() {
+    if (songs.length < 2) return alert("Not enough songs!");
+    
+    // Pick far away target
+    let farSongs = songs.filter(s => Math.sqrt((s.x-player.x)**2 + (s.y-player.y)**2) > 400);
+    let target = farSongs.length > 0 ? farSongs[Math.floor(Math.random() * farSongs.length)] : songs[Math.floor(Math.random() * songs.length)];
+    guideTarget = target;
+    
+    // Find stops along the way
+    let waypoints = [];
+    let vectorX = target.x - player.x;
+    let vectorY = target.y - player.y;
+    let totalDist = Math.sqrt(vectorX*vectorX + vectorY*vectorY);
+    
+    songs.forEach(s => {
+        if (s === target) return;
+        let sx = s.x - player.x;
+        let sy = s.y - player.y;
+        let dot = (sx * vectorX + sy * vectorY) / (totalDist * totalDist);
+        if (dot > 0.1 && dot < 0.9) {
+            let projX = player.x + dot * vectorX;
+            let projY = player.y + dot * vectorY;
+            if (Math.sqrt((s.x - projX)**2 + (s.y - projY)**2) < 200) waypoints.push(s);
+        }
+    });
 
-let songs = [
-  { id: "S1", ytId: "MsgDNBmPt9M", x: -200, y: -200, title: "Hass Hass - Diljit Dosanjh", note: "Sped up vibes", offset: 10 },
-  { id: "S2", ytId: "MG_dV5dTzTE", x: 200, y: -250, title: "Shape of You", note: "Sped up", offset: 20 },
-  { id: "S3", ytId: "y6fT2xE7Jr0", x: -300, y: 100, title: "Humraah", note: "Sped up", offset: 30 },
-  { id: "S4", ytId: "7DuN2Orwjbw", x: 350, y: 150, title: "Na Ja", note: "Classic beat", offset: 40 },
-  { id: "S5", ytId: "QK24bYxgvy8", x: 0, y: -350, title: "Tu aake dekh le", note: "Chill vibes", offset: 50 },
-  { id: "S6", ytId: "1KTk6xO2OCA", x: -150, y: 300, title: "Wishes", note: "Sped up", offset: 60 },
-  { id: "S7", ytId: "5mXtufkZ14Q", x: 400, y: -100, title: "Heat Waves", note: "Glass Animals", offset: 70 },
-  { id: "S8", ytId: "LiNBnYBMtGg", x: -400, y: -50, title: "Teri Yeh Adaa", note: "Reverb heavy", offset: 80 },
-  { id: "S9", ytId: "c-2qNAGrjSs", x: 100, y: 400, title: "Tauba Tauba", note: "Trending", offset: 90 },
-  { id: "S10", ytId: "qSU23ZcCXBk", x: -250, y: 450, title: "Bandook Meri Laila", note: "Two layered", offset: 15 },
-  { id: "S11", ytId: "nTWj1oZMOEk", x: 250, y: 350, title: "Subha Hone Na De", note: "Party classic", offset: 25 },
-  { id: "S12", ytId: "SAgHZLX90SU", x: 500, y: 0, title: "You and Me", note: "Shubh", offset: 35 },
-  { id: "S13", ytId: "wZLRSXYI12o", x: -500, y: 200, title: "Mi Amor", note: "Sharn", offset: 45 },
-  { id: "S14", ytId: "HykHxOoCHi8", x: 50, y: -500, title: "Husn", note: "Anuv Jain", offset: 55 },
-  { id: "S15", ytId: "WlCg1hp7JMA", x: -350, y: -400, title: "Jaana Samjho Na", note: "Reverb", offset: 65 },
-  { id: "S16", ytId: "wcd80k5vLqE", x: 600, y: 200, title: "Chuttamalle", note: "Devara", offset: 75 },
-  { id: "S17", ytId: "AZhe2er0Rf4", x: -600, y: -100, title: "Amplifier", note: "Sped Up", offset: 85 },
-  { id: "S18", ytId: "LCC6TnPq5Y4", x: 150, y: 600, title: "Tera Ghata", note: "Rajasthani", offset: 95 }
-];
+    // Sort by distance
+    waypoints.sort((a, b) => ((a.x - player.x)**2 + (a.y - player.y)**2) - ((b.x - player.x)**2 + (b.y - player.y)**2));
+    if (waypoints.length > 3) waypoints = [waypoints[0], waypoints[Math.floor(waypoints.length/2)], waypoints[waypoints.length-1]];
 
+    // Build Path
+    guidePath = [];
+    guidePath.push({x: player.x, y: player.y}); 
+    waypoints.forEach(wp => guidePath.push({x: wp.x, y: wp.y})); 
+    guidePath.push({x: target.x, y: target.y});
+    
+    // UI
+    document.getElementById('clear-guide-btn').style.display = 'flex';
+    document.getElementById('auto-btn').style.display = 'flex';
+    document.getElementById('auto-btn').innerText = "▶ Start Tour";
+    
+    // Reset
+    isAutopilot = false; 
+    autopilotIndex = 1; 
+    autopilotState = "IDLE";
+    camera.targetZoom = 0.6;
+}
+
+function toggleAutopilot() {
+    if (!guidePath) return;
+    isAutopilot = !isAutopilot;
+    document.getElementById('auto-btn').innerText = isAutopilot ? "⏸ Pause Tour" : "▶ Start Tour";
+    
+    if(isAutopilot) {
+        if (currentSongId) {
+            autopilotState = "LISTENING";
+            document.getElementById('np-status').style.display = "block";
+            document.getElementById('np-status').innerText = "AUTOPILOT: LISTENING...";
+            document.getElementById('skip-btn').style.display = 'flex';
+        } else {
+            autopilotState = "MOVING";
+        }
+        camera.targetZoom = 0.8;
+    } else {
+        document.getElementById('skip-btn').style.display = 'none';
+        document.getElementById('np-status').style.display = 'none';
+    }
+}
+
+function forceNextSong() {
+    if(!isAutopilot) return;
+    
+    // Stop current
+    stopSong(); 
+    currentSongId = null; 
+
+    // Move to next
+    autopilotIndex++;
+    
+    // Check end
+    if (autopilotIndex >= guidePath.length) {
+        clearGuide(); 
+    } else {
+        autopilotState = "MOVING";
+        document.getElementById('skip-btn').style.display = 'none';
+        document.getElementById('np-status').innerText = "MOVING TO NEXT STOP...";
+    }
+}
+
+function clearGuide() {
+    guidePath = null; guideTarget = null; isAutopilot = false;
+    document.getElementById('clear-guide-btn').style.display = 'none';
+    document.getElementById('auto-btn').style.display = 'none';
+    document.getElementById('skip-btn').style.display = 'none';
+    document.getElementById('auto-btn').innerText = "▶ Start Tour";
+    document.getElementById('np-status').style.display = 'none';
+}
+
+function clearTrace() { pathHistory = []; }
 
 // ==========================================
-// 2. YOUTUBE ENGINE
+// 2. YOUTUBE
 // ==========================================
 let playerInstance = null;
-let apiReady = false;
+let currentSongId = null;
 
 function onYouTubeIframeAPIReady() {
-    apiReady = true;
     playerInstance = new YT.Player('yt-player-wrapper', {
         height: '100%', width: '100%', videoId: '',
-        playerVars: { 'playsinline': 1, 'controls': 1, 'disablekb': 1 }, // Controls ON for Cinema Mode
+        playerVars: { 'playsinline': 1, 'controls': 1, 'disablekb': 1 },
+        events: { 'onStateChange': onPlayerStateChange }
     });
+}
+
+function onPlayerStateChange(event) {
+    if (event.data === 0 && isAutopilot && autopilotState === "LISTENING") {
+        console.log("Song finished naturally.");
+        forceNextSong();
+    }
 }
 
 function playSong(song) {
     if (!playerInstance || !playerInstance.loadVideoById) return;
-    videoDock.style.display = "block";
+    document.getElementById('video-dock').style.display = "block";
     playerInstance.loadVideoById(song.ytId);
-    npTitle.innerText = song.title;
-    npNote.innerText = song.note || "";
-    npBox.style.display = "block";
+    document.getElementById('np-title').innerText = song.title;
+    document.getElementById('np-note').innerText = song.note || "";
+    document.getElementById('now-playing').style.display = "block";
 }
 
 function stopSong() {
-    if (!playerInstance || !playerInstance.stopVideo) return;
-    playerInstance.stopVideo();
-    videoDock.style.display = "none";
-    npBox.style.display = "none";
+    if (playerInstance && playerInstance.stopVideo) playerInstance.stopVideo();
+    document.getElementById('video-dock').style.display = "none";
+    document.getElementById('now-playing').style.display = "none";
 }
 
 // ==========================================
-// 3. EDITOR TOOLS
+// 3. INPUTS
 // ==========================================
-let isEditorMode = false;
-let draggedSong = null;
-
-function toggleEditor() {
-    isEditorMode = !isEditorMode;
-    document.body.classList.toggle('editor-mode', isEditorMode);
+window.addEventListener('resize', resize);
+function resize() { 
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    fogCanvas.width = 4000; fogCanvas.height = 4000;
+    fogCtx.fillStyle = "rgba(0, 0, 0, 0.40)"; 
+    fogCtx.fillRect(0, 0, 4000, 4000);
+    fogCtx.globalCompositeOperation = "destination-out";
+    fogCtx.beginPath(); fogCtx.arc(2000, 2000, 300, 0, Math.PI*2); fogCtx.fill();
+    fogCtx.globalCompositeOperation = "source-over";
 }
-
-// SCATTER FUNCTION: Takes songs at (0,0) and explodes them outward
-function scatterSongs() {
-    if(!confirm("This will randomly move songs that are stuck at (0,0). Continue?")) return;
-    songs.forEach(song => {
-        if (Math.abs(song.x) < 5 && Math.abs(song.y) < 5) {
-            // Random scatter within 500px
-            song.x = (Math.random() - 0.5) * 1000;
-            song.y = (Math.random() - 0.5) * 1000;
-        }
-    });
-}
-
-function exportJSON() {
-    const cleanSongs = songs.map(s => ({
-        id: s.id, ytId: s.ytId, x: Math.round(s.x), y: Math.round(s.y), 
-        title: s.title, note: s.note, offset: Math.round(s.offset)
-    }));
-    exportBox.value = JSON.stringify(cleanSongs, null, 2);
-    exportBox.select();
-    document.execCommand('copy');
-    alert("Copied to clipboard!");
-}
-
-// ==========================================
-// 4. ENGINE
-// ==========================================
-let player = { x: 0, y: 0, size: 8 };
-let camera = { zoom: 1, targetZoom: 1 };
-let keys = {};
-let currentSongId = null;
-let time = 0;
-let isDragging = false;
-let lastMouse = { x: 0, y: 0 };
+resize();
 
 document.getElementById('start-btn').addEventListener('click', () => {
-    startScreen.style.display = 'none';
+    document.getElementById('start-screen').style.display = 'none';
     if(playerInstance) playerInstance.playVideo();
     setTimeout(() => { if(playerInstance) playerInstance.stopVideo(); }, 100);
 });
 
-window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
-window.dispatchEvent(new Event('resize'));
 window.addEventListener('keydown', e => {
     keys[e.key.toLowerCase()] = true;
-    if (e.key.toLowerCase() === 'e' && e.shiftKey) toggleEditor();
+    if (isAutopilot && (e.key==='w'||e.key==='a'||e.key==='s'||e.key==='d')) toggleAutopilot(); 
 });
 window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 window.addEventListener('wheel', e => {
     e.preventDefault();
-    camera.targetZoom -= e.deltaY * 0.001;
-    camera.targetZoom = Math.max(0.2, Math.min(3.0, camera.targetZoom));
+    camera.targetZoom = Math.max(0.2, Math.min(3.0, camera.targetZoom - e.deltaY * 0.001));
 }, { passive: false });
-
-function toWorld(screenX, screenY) {
-    const cx = canvas.width / 2;
-    const cy = canvas.height / 2;
-    const wx = (screenX - cx) / camera.zoom + player.x;
-    const wy = (screenY - cy) / camera.zoom + player.y;
-    return { x: wx, y: wy };
-}
-
-canvas.addEventListener('mousedown', e => {
-    isDragging = true;
-    lastMouse = { x: e.clientX, y: e.clientY };
-    const mouseWorld = toWorld(e.clientX, e.clientY);
-    if (isEditorMode) {
-        songs.forEach(song => {
-            const dist = Math.sqrt((mouseWorld.x - song.x)**2 + (mouseWorld.y - song.y)**2);
-            if (dist < 40) draggedSong = song;
-        });
-    }
+canvas.addEventListener('mousedown', e => { 
+    mouse.dragging = true; mouse.x = e.clientX; mouse.y = e.clientY; 
+    if(isAutopilot) toggleAutopilot(); 
 });
-
-window.addEventListener('mouseup', () => { isDragging = false; draggedSong = null; });
+window.addEventListener('mouseup', () => mouse.dragging = false);
 canvas.addEventListener('mousemove', e => {
-    const dx = e.clientX - lastMouse.x;
-    const dy = e.clientY - lastMouse.y;
-    lastMouse = { x: e.clientX, y: e.clientY };
-    if (draggedSong) {
-        draggedSong.x += dx / camera.zoom;
-        draggedSong.y += dy / camera.zoom;
-        return;
-    }
-    if (isDragging) {
-        if (isEditorMode && !keys['alt']) return; 
-        player.x -= dx / camera.zoom;
-        player.y -= dy / camera.zoom;
+    if(mouse.dragging) {
+        player.x -= (e.clientX - mouse.x) / camera.zoom;
+        player.y -= (e.clientY - mouse.y) / camera.zoom;
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
     }
 });
 
-canvas.addEventListener('dblclick', e => {
-    if (!isEditorMode) return;
-    const world = toWorld(e.clientX, e.clientY);
-    const ytUrl = prompt("Enter YouTube URL:");
-    if (!ytUrl) return;
-    let vidId = ytUrl;
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = ytUrl.match(regExp);
-    if (match && match[2].length === 11) vidId = match[2];
 
-    songs.push({
-        id: "S" + Date.now(), ytId: vidId, x: world.x, y: world.y,
-        title: prompt("Title:", "New Song") || "Untitled", note: prompt("Note:", "") || "",
-        offset: Math.random() * 100
-    });
-});
-
+// ==========================================
+// 4. RENDER LOOP
+// ==========================================
+let time = 0;
 function draw() {
     time += 0.04; 
-    if (keys['w'] || keys['arrowup']) player.y -= 6 / camera.zoom;
-    if (keys['s'] || keys['arrowdown']) player.y += 6 / camera.zoom;
-    if (keys['a'] || keys['arrowleft']) player.x -= 6 / camera.zoom;
-    if (keys['d'] || keys['arrowright']) player.x += 6 / camera.zoom;
+
+    // --- AUTOPILOT LOGIC ---
+    if (isAutopilot && guidePath && autopilotIndex < guidePath.length) {
+        
+        if (autopilotState === "MOVING") {
+            let target = guidePath[autopilotIndex];
+            let dx = target.x - player.x;
+            let dy = target.y - player.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // THE FIX: Use "Fuzzy" match (allow 1px error) to detect songs
+            let isTargetSong = songs.find(s => Math.abs(s.x - target.x) < 1 && Math.abs(s.y - target.y) < 1);
+            
+            if (dist < 10) {
+                // ARRIVED AT WAYPOINT
+                if (isTargetSong) {
+                    // It is a song! Switch to listening.
+                    autopilotState = "LISTENING";
+                    document.getElementById('np-status').style.display = "block";
+                    document.getElementById('np-status').innerText = "AUTOPILOT: LISTENING...";
+                    document.getElementById('skip-btn').style.display = 'flex';
+                } else {
+                    // Just a path point. Keep moving.
+                    autopilotIndex++;
+                    if (autopilotIndex >= guidePath.length) clearGuide();
+                }
+            } else {
+                // Move towards waypoint
+                let moveSpeed = 4.0 / camera.zoom;
+                player.x += (dx / dist) * moveSpeed;
+                player.y += (dy / dist) * moveSpeed;
+            }
+        }
+    } else {
+        // MANUAL MODE
+        if (keys['w']) player.y -= 6/camera.zoom;
+        if (keys['s']) player.y += 6/camera.zoom;
+        if (keys['a']) player.x -= 6/camera.zoom;
+        if (keys['d']) player.x += 6/camera.zoom;
+    }
+
     camera.zoom += (camera.targetZoom - camera.zoom) * 0.1;
 
+    // Trace
+    if (pathHistory.length === 0 || Math.abs(player.x - pathHistory[pathHistory.length-1].x) > 10 || Math.abs(player.y - pathHistory[pathHistory.length-1].y) > 10) {
+        pathHistory.push({x: player.x, y: player.y});
+    }
+
+    // Fog
+    let fogX = player.x + 2000;
+    let fogY = player.y + 2000;
+    fogCtx.globalCompositeOperation = "destination-out";
+    fogCtx.beginPath(); fogCtx.arc(fogX, fogY, 150, 0, Math.PI*2); fogCtx.fill();
+    fogCtx.globalCompositeOperation = "source-over";
+
+    // DRAW SCENE
     ctx.fillStyle = "#000"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
     ctx.save();
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.scale(camera.zoom, camera.zoom);
     ctx.translate(-player.x, -player.y);
 
+    // Anchors
     ctx.globalCompositeOperation = "screen"; 
-    anchors.forEach(anchor => {
-        const grad = ctx.createRadialGradient(anchor.x, anchor.y, 0, anchor.x, anchor.y, anchor.radius);
-        grad.addColorStop(0, anchor.color);
-        grad.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(anchor.x, anchor.y, anchor.radius, 0, Math.PI * 2); ctx.fill(); 
+    anchors.forEach(a => {
+        let grad = ctx.createRadialGradient(a.x, a.y, 0, a.x, a.y, a.radius);
+        grad.addColorStop(0, a.color); grad.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(a.x, a.y, a.radius, 0, Math.PI*2); ctx.fill();
     });
     ctx.globalCompositeOperation = "source-over";
 
-    if (isEditorMode) {
-        ctx.strokeStyle = "rgba(0, 100, 255, 0.2)"; ctx.lineWidth = 1; ctx.beginPath();
-        for(let i=-2000; i<2000; i+=200) { ctx.moveTo(i, -2000); ctx.lineTo(i, 2000); ctx.moveTo(-2000, i); ctx.lineTo(2000, i); }
+    // Trace
+    if (pathHistory.length > 1) {
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.15)"; ctx.lineWidth = 2; ctx.beginPath();
+        ctx.moveTo(pathHistory[0].x, pathHistory[0].y);
+        for(let i=1; i<pathHistory.length; i++) ctx.lineTo(pathHistory[i].x, pathHistory[i].y);
         ctx.stroke();
     }
 
-    let touchingAnySong = false;
-    songs.forEach(song => {
-        const floatY = isEditorMode ? song.y : song.y + Math.sin(time + song.offset) * 6;
-        const dx = player.x - song.x;
-        const dy = player.y - floatY;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        const isTouching = dist < (35 + player.size);
-        const currentRadius = isTouching ? 50 : 35;
-
-        ctx.beginPath(); ctx.arc(song.x, floatY, currentRadius, 0, Math.PI * 2);
+    // Guide Line
+    if (guidePath && guidePath.length > 1) {
+        ctx.strokeStyle = isAutopilot ? "rgba(0, 255, 255, 0.8)" : "rgba(0, 255, 255, 0.4)";
+        ctx.lineWidth = 3; ctx.setLineDash([15, 10]); ctx.beginPath();
         
-        if (isTouching) {
-            touchingAnySong = true;
-            ctx.shadowBlur = 30; ctx.shadowColor = "white"; ctx.fillStyle = "white"; ctx.fill(); ctx.shadowBlur = 0;
-            if (currentSongId !== song.id && !isEditorMode) {
-                playSong(song);
-                currentSongId = song.id;
+        let startIdx = autopilotIndex > 0 ? autopilotIndex - 1 : 0;
+        ctx.moveTo(player.x, player.y);
+        for(let i=autopilotIndex; i<guidePath.length; i++) ctx.lineTo(guidePath[i].x, guidePath[i].y);
+        ctx.stroke(); ctx.setLineDash([]);
+        
+        // Draw Stops (Visual Feedback)
+        for(let i=autopilotIndex; i<guidePath.length; i++) {
+            let pt = guidePath[i];
+            // Only draw dots if it matches a song
+            if (songs.some(s => Math.abs(s.x-pt.x)<1 && Math.abs(s.y-pt.y)<1)) {
+                ctx.fillStyle = "cyan"; ctx.beginPath(); ctx.arc(pt.x, pt.y, 6, 0, Math.PI*2); ctx.fill();
             }
+        }
+        
+        let end = guidePath[guidePath.length-1];
+        ctx.shadowBlur = 10; ctx.shadowColor = "cyan"; ctx.fillStyle = "cyan"; ctx.beginPath(); ctx.arc(end.x, end.y, 8, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
+    }
+
+    // Songs
+    let touching = false;
+    songs.forEach(s => {
+        let floatY = s.y + Math.sin(time + s.offset) * 6;
+        let dist = Math.sqrt((player.x-s.x)**2 + (player.y-floatY)**2);
+        let isTouching = dist < (35 + player.size);
+        let r = isTouching ? 50 : 35;
+        
+        if (guidePath && guidePath.some(pt => Math.abs(pt.x-s.x)<1 && Math.abs(pt.y-s.y)<1)) {
+            ctx.strokeStyle = "cyan"; ctx.lineWidth = 3;
         } else {
-            ctx.fillStyle = isEditorMode ? "rgba(0, 100, 255, 0.2)" : "rgba(255,255,255,0.05)";
-            ctx.strokeStyle = isEditorMode ? "#0088ff" : "rgba(255,255,255,0.4)";
-            ctx.lineWidth = 1.5; ctx.fill(); ctx.stroke();
+            ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.lineWidth = 1.5;
         }
 
-        if (camera.zoom > 0.5 || isEditorMode) {
+        ctx.beginPath(); ctx.arc(s.x, floatY, r, 0, Math.PI*2);
+        
+        if (isTouching) {
+            touching = true;
+            ctx.shadowBlur = 30; ctx.shadowColor = "white"; ctx.fillStyle = "white"; ctx.fill(); ctx.shadowBlur = 0;
+            if(currentSongId !== s.id) { playSong(s); currentSongId = s.id; }
+        } else {
+            ctx.fillStyle = "rgba(255,255,255,0.05)"; ctx.fill(); ctx.stroke();
+        }
+
+        if (camera.zoom > 0.5) {
              ctx.fillStyle = isTouching ? "black" : "rgba(255,255,255,0.7)";
              ctx.font = isTouching ? "bold 12px Arial" : "11px Arial";
-             ctx.textAlign = "center"; ctx.fillText(song.title, song.x, floatY + currentRadius + 15);
+             ctx.textAlign = "center"; ctx.fillText(s.title, s.x, floatY + r + 15);
         }
     });
 
-    if (!touchingAnySong && currentSongId !== null && !isEditorMode) {
-        stopSong();
-        currentSongId = null;
-    }
-    
-    ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2); ctx.fill();
+    if(!touching && currentSongId && !isAutopilot) { stopSong(); currentSongId = null; }
+
+    ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(player.x, player.y, player.size, 0, Math.PI*2); ctx.fill();
+
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.drawImage(fogCanvas, -2000, -2000);
+    ctx.restore();
+
     ctx.restore();
     requestAnimationFrame(draw);
 }
