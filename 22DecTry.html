@@ -294,7 +294,6 @@ function startNeighborhoodJourney() {
     // If we're already near some songs, use this neighborhood. Otherwise pick a random song.
     if (nearbySongs.length > 0) {
         startSong = nearbySongs[0];
-        // Use current player position as start
     } else {
         startSong = songs.filter(s => s.status !== 'error')[Math.floor(Math.random() * songs.length)];
         player.x = startSong.x;
