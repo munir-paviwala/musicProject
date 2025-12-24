@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>A gallery of my music</title>
+    <title>Munir's Music Gallery</title>
     <style>
         body { margin: 0; background: #000; color: white; font-family: 'Helvetica Neue', sans-serif; overflow: hidden; }
         #canvas { display: block; cursor: grab; }
@@ -23,16 +23,29 @@
         }
         .journey-btn:hover { background: rgba(255,255,255,0.3); transform: translateX(5px); }
         
-        #auto-btn { 
-            border-color: #00ffff; color: #00ffff; background: rgba(0, 255, 255, 0.1); 
-            display: none; 
-        }
-        #skip-btn {
-            border-color: #ffaa00; color: #ffaa00; background: rgba(255, 170, 0, 0.1);
-            display: none; /* Only shows when listening in autopilot */
-        }
+        #auto-btn { border-color: #00ffff; color: #00ffff; background: rgba(0, 255, 255, 0.1); display: none; }
+        #skip-btn { border-color: #ffaa00; color: #ffaa00; background: rgba(255, 170, 0, 0.1); display: none; }
 
-        /* NOW PLAYING */
+        /* EDITOR PANEL */
+        #editor-panel {
+            display: none; position: absolute; top: 20px; right: 20px;
+            background: #001a33; border: 1px solid #0088ff; padding: 15px; width: 300px; 
+            border-radius: 8px; font-family: monospace; z-index: 200;
+            box-shadow: 0 0 20px rgba(0, 100, 255, 0.5); max-height: 90vh; overflow-y: auto;
+        }
+        .editor-mode #editor-panel { display: block; }
+        .editor-mode #canvas { border: 4px solid #0088ff; box-sizing: border-box; }
+        
+        .edit-label { font-size: 10px; color: #00aaff; margin-top: 10px; display: block; font-weight: bold; }
+        input.edit-input { width: 100%; background: #000d1a; border: 1px solid #004488; color: white; padding: 5px; margin-bottom:5px; }
+        textarea.edit-input { width: 100%; height: 40px; background: #000d1a; border: 1px solid #004488; color: white; padding: 5px; font-family: sans-serif; }
+        
+        .io-box { width: 100%; height: 60px; font-size: 9px; color: #00ff88; border: 1px dashed #0088ff; background: rgba(0,0,0,0.5); margin-top: 5px;}
+        button.editor-btn { background: #0066cc; color: white; border: none; padding: 8px 10px; cursor: pointer; margin-top: 5px; width: 100%; border-radius: 4px; font-weight: bold;}
+        button.editor-btn:hover { background: #0088ff; }
+        button.green-btn { background: #009944; } button.green-btn:hover { background: #00cc55; }
+
+        /* PLAYER UI */
         #now-playing {
             position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
             width: 400px; background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(10px);
@@ -40,20 +53,18 @@
             display: none; text-align: center; z-index: 90;
         }
         #np-title { font-weight: 700; font-size: 1.1em; color: #fff; margin-bottom: 5px;}
-        
         #video-dock {
             position: absolute; bottom: 30px; right: 30px;
             width: 320px; height: 180px; background: #000; border: 2px solid #333; border-radius: 12px;
-            overflow: hidden; z-index: 100; display: none; 
-            transition: all 0.4s;
+            overflow: hidden; z-index: 100; display: none; transition: all 0.4s;
         }
         #video-dock:hover { width: 640px; height: 360px; border-color: white; transform: translate(-20px, -20px); }
         #yt-player-wrapper { width: 100%; height: 100%; pointer-events: none; } 
         #video-dock:hover #yt-player-wrapper { pointer-events: auto; }
-
+        
         #start-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 999;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 999;
         }
         #start-btn { padding: 15px 40px; font-size: 1.2em; cursor: pointer; border-radius: 50px; font-weight: bold; border:none;}
     </style>
@@ -61,21 +72,32 @@
 <body>
 
 <div id="start-screen">
-    <h1>A gallery of music I like</h1>
-    <p style="color: #888; margin-bottom: 20px;">You can walk through this and enjoy it; as it might have been for me. [to add more text here]</p>
-    <button id="start-btn">BEGIN EXPLORATION</button>
+    <h1>Munir's Music Gallery</h1>
+    <p style="color: #888; margin-bottom: 20px;">Walk through the music. Explore the colors collected over years.</p>
+    <button id="start-btn">ENTER THE MUSIC GALLERY</button>
+</div>
+<button id="info-toggle" style="position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 16px; border-radius: 20px; cursor: pointer; backdrop-filter: blur(5px); z-index: 10; pointer-events: auto;">ℹ️ Guide</button>
+<div id="info-panel" style="position: absolute; top: 70px; left: 20px; background: rgba(10,10,10,0.85); border: 1px solid rgba(255,255,255,0.15); padding: 15px 20px; border-radius: 8px; width: 280px; backdrop-filter: blur(10px); z-index: 15; display: none; pointer-events: auto;">
+    <h3 style="margin: 0 0 10px 0; font-size: 1em;">How to Explore</h3>
+    <p style="margin: 8px 0; font-size: 0.9em; color: #ccc;"><strong>Move:</strong> Use WASD or drag the canvas</p>
+    <p style="margin: 8px 0; font-size: 0.9em; color: #ccc;"><strong>Discover:</strong> Walk into color fields to find songs</p>
+    <p style="margin: 8px 0; font-size: 0.9em; color: #ccc;"><strong>Journey:</strong> Use the buttons below to take a guided tour through the landscape</p>
+    <p style="margin: 8px 0; font-size: 0.9em; color: #aaa; font-style: italic;">Enjoy the music as it plays and explore the emotions captured in color.</p>
 </div>
 
-<div id="ui">
-    <h2>Phase 13: The Listener</h2>
-    <p>Autopilot stops to listen.</p>
-</div>
+<script>
+document.getElementById('info-toggle').addEventListener('click', () => {
+    const panel = document.getElementById('info-panel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+});
+</script>
 
 <div id="journey-panel">
     <button class="journey-btn" onclick="startRandomJourney()">🎲 Guide Me Somewhere</button>
+    <button class="journey-btn" onclick="startNeighborhoodJourney()">🏘️ Explore Neighborhood</button>
     <button id="auto-btn" class="journey-btn" onclick="toggleAutopilot()">▶ Start Tour</button>
     <button id="skip-btn" class="journey-btn" onclick="forceNextSong()">⏭ Skip to Next</button>
-    <button class="journey-btn" onclick="clearTrace()">🧹 Erase Memory Trace</button>
+    <button class="journey-btn" onclick="clearTrace()">🧹 Erase Trace</button>
     <button class="journey-btn" onclick="clearGuide()" id="clear-guide-btn" style="display:none; border-color: #ff4444; color: #ff8888;">❌ Stop Guide</button>
 </div>
 
@@ -86,6 +108,25 @@
 </div>
 
 <div id="video-dock"><div id="yt-player-wrapper"></div></div>
+
+<div id="editor-panel">
+    <h3 style="margin-top:0; border-bottom:1px solid #004488; padding-bottom:5px;">🛠 EDITOR MODE</h3>
+    <div id="selection-info" style="color: #ccc; font-size: 0.8em; margin-bottom: 10px;">Click a bubble to edit.</div>
+    <label class="edit-label">EDIT SELECTED</label>
+    <input type="text" id="edit-title" class="edit-input" placeholder="Title">
+    <textarea id="edit-note" class="edit-input" placeholder="Note"></textarea>
+    <hr style="border: 0; border-top: 1px solid #004488; margin: 15px 0;">
+    <label class="edit-label">1. IMPORT DATA</label>
+    <textarea id="import-box" class="io-box" placeholder="Paste Scraper JSON here..."></textarea>
+    <button class="editor-btn green-btn" onclick="mergeImport()">⬇ MERGE INTO ARCHIVE</button>
+    <label class="edit-label" style="margin-top:15px;">2. EXPORT ALL</label>
+    <textarea id="export-box" class="io-box" placeholder="Result will appear here..."></textarea>
+    <button class="editor-btn" onclick="exportJSON()">📋 COPY FULL JSON</button>
+    <div style="margin-top:20px; text-align:center;">
+        <button class="editor-btn" onclick="scatterSongs()" style="background:#552200;">💥 SCATTER PILE</button>
+    </div>
+</div>
+
 <canvas id="canvas"></canvas>
 
 <script src="https://www.youtube.com/iframe_api"></script>
@@ -96,7 +137,7 @@ const ctx = canvas.getContext('2d');
 const fogCanvas = document.createElement('canvas');
 const fogCtx = fogCanvas.getContext('2d');
 
-// GAME STATE
+// STATE
 let player = { x: 0, y: 0, size: 8 };
 let camera = { zoom: 1, targetZoom: 1 };
 let keys = {};
@@ -104,40 +145,92 @@ let mouse = { x: 0, y: 0, dragging: false };
 let pathHistory = []; 
 let guidePath = null; 
 let guideTarget = null; 
-
-// AUTOPILOT STATE
 let isAutopilot = false;
-let autopilotState = "IDLE"; // "MOVING" or "LISTENING"
+let autopilotState = "IDLE"; 
 let autopilotIndex = 1; 
 
 // DATA
 let songs = [];
 let anchors = [];
 
+// LOAD
 fetch('data.json').then(r => r.json()).then(data => {
     songs = data.songs || [];
     anchors = data.anchors || [];
+    console.log(`Loaded ${songs.length} songs.`);
 }).catch(e => console.error("Data Error:", e));
 
 // ==========================================
-// 1. SMART PATHFINDING
+// 1. DATA MANAGEMENT
+// ==========================================
+const editTitle = document.getElementById('edit-title');
+const editNote = document.getElementById('edit-note');
+const importBox = document.getElementById('import-box');
+const exportBox = document.getElementById('export-box');
+
+function mergeImport() {
+    try {
+        const raw = importBox.value;
+        if (!raw) return alert("Paste JSON first!");
+        const newSongs = JSON.parse(raw);
+        if (!Array.isArray(newSongs)) return alert("Invalid Format: Must be an array []");
+
+        let addedCount = 0;
+        newSongs.forEach(newS => {
+            const exists = songs.some(s => s.ytId === newS.ytId);
+            if (!exists) { songs.push(newS); addedCount++; }
+        });
+        alert(`Success!\nAdded: ${addedCount} songs.`);
+        importBox.value = ""; 
+    } catch (e) { alert("Error parsing JSON."); console.error(e); }
+}
+
+function exportJSON() {
+    const dataObj = {
+        anchors: anchors,
+        songs: songs.map(s => ({
+            id: s.id, ytId: s.ytId, x: Math.round(s.x), y: Math.round(s.y), 
+            title: s.title, note: s.note, offset: Math.round(s.offset), status: s.status // Preserve status
+        }))
+    };
+    exportBox.value = JSON.stringify(dataObj, null, 2);
+    exportBox.select();
+    document.execCommand('copy');
+    alert("Full Archive Copied! Save to data.json");
+}
+
+function scatterSongs() {
+    if(!confirm("Scatter clustered songs?")) return;
+    songs.forEach(song => {
+        if (Math.abs(song.x) < 5 && Math.abs(song.y) < 5) {
+            song.x = (Math.random() - 0.5) * 2000;
+            song.y = (Math.random() - 0.5) * 2000;
+        }
+    });
+}
+
+// Editor Listeners
+let draggedSong = null;
+editTitle.addEventListener('input', (e) => { if(draggedSong) draggedSong.title = e.target.value; });
+editNote.addEventListener('input', (e) => { if(draggedSong) draggedSong.note = e.target.value; });
+
+
+// ==========================================
+// 2. PATHFINDING
 // ==========================================
 function startRandomJourney() {
-    if (songs.length < 2) return alert("Not enough songs!");
-    
-    // Pick far away target
-    let farSongs = songs.filter(s => Math.sqrt((s.x-player.x)**2 + (s.y-player.y)**2) > 400);
+    if (songs.length < 2) return alert("Need more songs!");
+    let farSongs = songs.filter(s => Math.sqrt((s.x-player.x)**2 + (s.y-player.y)**2) > 400 && s.status !== 'error');
     let target = farSongs.length > 0 ? farSongs[Math.floor(Math.random() * farSongs.length)] : songs[Math.floor(Math.random() * songs.length)];
     guideTarget = target;
     
-    // Find stops along the way
     let waypoints = [];
     let vectorX = target.x - player.x;
     let vectorY = target.y - player.y;
     let totalDist = Math.sqrt(vectorX*vectorX + vectorY*vectorY);
     
     songs.forEach(s => {
-        if (s === target) return;
+        if (s === target || s.status === 'error') return; // Don't route through broken songs
         let sx = s.x - player.x;
         let sy = s.y - player.y;
         let dot = (sx * vectorX + sy * vectorY) / (totalDist * totalDist);
@@ -147,43 +240,31 @@ function startRandomJourney() {
             if (Math.sqrt((s.x - projX)**2 + (s.y - projY)**2) < 200) waypoints.push(s);
         }
     });
-
-    // Sort by distance
     waypoints.sort((a, b) => ((a.x - player.x)**2 + (a.y - player.y)**2) - ((b.x - player.x)**2 + (b.y - player.y)**2));
     if (waypoints.length > 3) waypoints = [waypoints[0], waypoints[Math.floor(waypoints.length/2)], waypoints[waypoints.length-1]];
 
-    // Build Path
     guidePath = [];
     guidePath.push({x: player.x, y: player.y}); 
     waypoints.forEach(wp => guidePath.push({x: wp.x, y: wp.y})); 
     guidePath.push({x: target.x, y: target.y});
     
-    // UI
     document.getElementById('clear-guide-btn').style.display = 'flex';
     document.getElementById('auto-btn').style.display = 'flex';
     document.getElementById('auto-btn').innerText = "▶ Start Tour";
-    
-    // Reset
-    isAutopilot = false; 
-    autopilotIndex = 1; 
-    autopilotState = "IDLE";
-    camera.targetZoom = 0.6;
+    isAutopilot = false; autopilotIndex = 1; autopilotState = "IDLE"; camera.targetZoom = 0.6;
 }
 
 function toggleAutopilot() {
     if (!guidePath) return;
     isAutopilot = !isAutopilot;
     document.getElementById('auto-btn').innerText = isAutopilot ? "⏸ Pause Tour" : "▶ Start Tour";
-    
     if(isAutopilot) {
         if (currentSongId) {
             autopilotState = "LISTENING";
             document.getElementById('np-status').style.display = "block";
             document.getElementById('np-status').innerText = "AUTOPILOT: LISTENING...";
             document.getElementById('skip-btn').style.display = 'flex';
-        } else {
-            autopilotState = "MOVING";
-        }
+        } else { autopilotState = "MOVING"; }
         camera.targetZoom = 0.8;
     } else {
         document.getElementById('skip-btn').style.display = 'none';
@@ -193,22 +274,72 @@ function toggleAutopilot() {
 
 function forceNextSong() {
     if(!isAutopilot) return;
-    
-    // Stop current
-    stopSong(); 
-    currentSongId = null; 
-
-    // Move to next
-    autopilotIndex++;
-    
-    // Check end
-    if (autopilotIndex >= guidePath.length) {
-        clearGuide(); 
-    } else {
+    stopSong(); currentSongId = null; autopilotIndex++;
+    if (autopilotIndex >= guidePath.length) { clearGuide(); } 
+    else {
         autopilotState = "MOVING";
         document.getElementById('skip-btn').style.display = 'none';
         document.getElementById('np-status').innerText = "MOVING TO NEXT STOP...";
     }
+}
+
+function startNeighborhoodJourney() {
+    // Find a good starting point: either current position or a random song
+    let startSong;
+    let nearbySongs = songs.filter(s => {
+        let dist = Math.sqrt((s.x - player.x)**2 + (s.y - player.y)**2);
+        return dist < 600 && s.status !== 'error';
+    });
+    
+    // If we're already near some songs, use this neighborhood. Otherwise pick a random song.
+    if (nearbySongs.length > 0) {
+        startSong = nearbySongs[0];
+        // Use current player position as start
+    } else {
+        startSong = songs.filter(s => s.status !== 'error')[Math.floor(Math.random() * songs.length)];
+        player.x = startSong.x;
+        player.y = startSong.y;
+    }
+    
+    // Find all songs in the neighborhood (within ~500 units)
+    let neighborhood = songs.filter(s => {
+        let dist = Math.sqrt((s.x - startSong.x)**2 + (s.y - startSong.y)**2);
+        return dist < 500 && s.status !== 'error' && s !== startSong;
+    });
+    
+    if (neighborhood.length < 2) {
+        return alert("Not enough songs in this neighborhood! Try another area.");
+    }
+    
+    // Sort by angle around the start point (spiral/circular ordering)
+    neighborhood.sort((a, b) => {
+        let angleA = Math.atan2(a.y - startSong.y, a.x - startSong.x);
+        let angleB = Math.atan2(b.y - startSong.y, b.x - startSong.x);
+        let distA = Math.sqrt((a.x - startSong.x)**2 + (a.y - startSong.y)**2);
+        let distB = Math.sqrt((b.x - startSong.x)**2 + (b.y - startSong.y)**2);
+        
+        // Sort by angle first, then by distance
+        if (Math.abs(angleA - angleB) > 0.3) return angleA - angleB;
+        return distA - distB;
+    });
+    
+    // Build path through neighborhood
+    guidePath = [];
+    guidePath.push({x: startSong.x, y: startSong.y});
+    neighborhood.forEach(song => {
+        guidePath.push({x: song.x, y: song.y});
+    });
+    // Loop back to start to create a cycle
+    guidePath.push({x: startSong.x, y: startSong.y});
+    
+    guideTarget = null; // No specific target for neighborhood tours
+    document.getElementById('clear-guide-btn').style.display = 'flex';
+    document.getElementById('auto-btn').style.display = 'flex';
+    document.getElementById('auto-btn').innerText = "▶ Start Tour";
+    isAutopilot = false; 
+    autopilotIndex = 1; 
+    autopilotState = "IDLE"; 
+    camera.targetZoom = 0.7; // Slightly zoomed in to see neighborhood
 }
 
 function clearGuide() {
@@ -219,32 +350,50 @@ function clearGuide() {
     document.getElementById('auto-btn').innerText = "▶ Start Tour";
     document.getElementById('np-status').style.display = 'none';
 }
-
 function clearTrace() { pathHistory = []; }
 
 // ==========================================
-// 2. YOUTUBE
+// 3. YOUTUBE (Robust Singleton)
 // ==========================================
 let playerInstance = null;
 let currentSongId = null;
 
 function onYouTubeIframeAPIReady() {
+    // Only ONE player is ever created.
     playerInstance = new YT.Player('yt-player-wrapper', {
         height: '100%', width: '100%', videoId: '',
         playerVars: { 'playsinline': 1, 'controls': 1, 'disablekb': 1 },
-        events: { 'onStateChange': onPlayerStateChange }
+        events: { 'onStateChange': onPlayerStateChange, 'onError': onPlayerError }
     });
 }
 
 function onPlayerStateChange(event) {
     if (event.data === 0 && isAutopilot && autopilotState === "LISTENING") {
-        console.log("Song finished naturally.");
         forceNextSong();
+    }
+}
+
+// ⚠️ BAD APPLE HANDLER
+function onPlayerError(event) {
+    console.warn("Song Unavailable. Code:", event.data);
+    // Find the current song object
+    let song = songs.find(s => s.id === currentSongId);
+    if (song) {
+        song.status = 'error'; // Mark as red forever
+        document.getElementById('np-title').innerText = "SONG UNAVAILABLE";
+        document.getElementById('np-note').innerText = "Skipping automatically...";
+    }
+    
+    // If in autopilot, wait 2s then skip
+    if (isAutopilot) {
+        setTimeout(() => forceNextSong(), 1500);
     }
 }
 
 function playSong(song) {
     if (!playerInstance || !playerInstance.loadVideoById) return;
+    if (song.status === 'error') return; // Don't retry broken songs
+    
     document.getElementById('video-dock').style.display = "block";
     playerInstance.loadVideoById(song.ytId);
     document.getElementById('np-title').innerText = song.title;
@@ -259,14 +408,13 @@ function stopSong() {
 }
 
 // ==========================================
-// 3. INPUTS
+// 4. INPUTS
 // ==========================================
 window.addEventListener('resize', resize);
 function resize() { 
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
     fogCanvas.width = 4000; fogCanvas.height = 4000;
-    fogCtx.fillStyle = "rgba(0, 0, 0, 0.40)"; 
-    fogCtx.fillRect(0, 0, 4000, 4000);
+    fogCtx.fillStyle = "rgba(0, 0, 0, 0.40)"; fogCtx.fillRect(0, 0, 4000, 4000);
     fogCtx.globalCompositeOperation = "destination-out";
     fogCtx.beginPath(); fogCtx.arc(2000, 2000, 300, 0, Math.PI*2); fogCtx.fill();
     fogCtx.globalCompositeOperation = "source-over";
@@ -279,98 +427,89 @@ document.getElementById('start-btn').addEventListener('click', () => {
     setTimeout(() => { if(playerInstance) playerInstance.stopVideo(); }, 100);
 });
 
+// EDITOR TOGGLE
+let isEditorMode = false;
 window.addEventListener('keydown', e => {
     keys[e.key.toLowerCase()] = true;
+    if (e.key.toLowerCase() === 'e' && e.shiftKey) {
+        isEditorMode = !isEditorMode;
+        document.body.classList.toggle('editor-mode', isEditorMode);
+    }
     if (isAutopilot && (e.key==='w'||e.key==='a'||e.key==='s'||e.key==='d')) toggleAutopilot(); 
 });
 window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
-window.addEventListener('wheel', e => {
-    e.preventDefault();
-    camera.targetZoom = Math.max(0.2, Math.min(3.0, camera.targetZoom - e.deltaY * 0.001));
-}, { passive: false });
+window.addEventListener('wheel', e => { e.preventDefault(); camera.targetZoom = Math.max(0.2, Math.min(3.0, camera.targetZoom - e.deltaY * 0.001)); }, { passive: false });
+
+function toWorld(sx, sy) { const cx = canvas.width/2; const cy = canvas.height/2; return { x: (sx - cx)/camera.zoom + player.x, y: (sy - cy)/camera.zoom + player.y }; }
 canvas.addEventListener('mousedown', e => { 
     mouse.dragging = true; mouse.x = e.clientX; mouse.y = e.clientY; 
     if(isAutopilot) toggleAutopilot(); 
+    if (isEditorMode) {
+        const m = toWorld(e.clientX, e.clientY);
+        let clicked = false;
+        songs.forEach(s => { if (Math.sqrt((m.x-s.x)**2 + (m.y-s.y)**2) < 40) { draggedSong = s; clicked = true; editTitle.value = s.title; editNote.value = s.note || ""; } });
+        if(!clicked) draggedSong = null;
+    }
 });
 window.addEventListener('mouseup', () => mouse.dragging = false);
 canvas.addEventListener('mousemove', e => {
-    if(mouse.dragging) {
-        player.x -= (e.clientX - mouse.x) / camera.zoom;
-        player.y -= (e.clientY - mouse.y) / camera.zoom;
-        mouse.x = e.clientX;
-        mouse.y = e.clientY;
-    }
+    const dx = e.clientX - mouse.x; const dy = e.clientY - mouse.y; mouse.x = e.clientX; mouse.y = e.clientY;
+    if (draggedSong && isEditorMode && mouse.dragging) { draggedSong.x += dx / camera.zoom; draggedSong.y += dy / camera.zoom; return; }
+    if(mouse.dragging) { player.x -= dx / camera.zoom; player.y -= dy / camera.zoom; }
 });
 
-
 // ==========================================
-// 4. RENDER LOOP
+// 5. RENDER (Optimized Loop)
 // ==========================================
 let time = 0;
 function draw() {
     time += 0.04; 
 
-    // --- AUTOPILOT LOGIC ---
-    if (isAutopilot && guidePath && autopilotIndex < guidePath.length) {
+    // Autopilot Move
+    if (isAutopilot && guidePath && autopilotIndex < guidePath.length && autopilotState === "MOVING") {
+        let target = guidePath[autopilotIndex];
+        let dx = target.x - player.x; let dy = target.y - player.y;
+        let dist = Math.sqrt(dx*dx + dy*dy);
         
-        if (autopilotState === "MOVING") {
-            let target = guidePath[autopilotIndex];
-            let dx = target.x - player.x;
-            let dy = target.y - player.y;
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            
-            // THE FIX: Use "Fuzzy" match (allow 1px error) to detect songs
-            let isTargetSong = songs.find(s => Math.abs(s.x - target.x) < 1 && Math.abs(s.y - target.y) < 1);
-            
-            if (dist < 10) {
-                // ARRIVED AT WAYPOINT
-                if (isTargetSong) {
-                    // It is a song! Switch to listening.
+        let isTargetSong = songs.find(s => Math.abs(s.x - target.x) < 1 && Math.abs(s.y - target.y) < 1);
+        if (dist < 10) {
+            if (isTargetSong) {
+                if (isTargetSong.status === 'error') {
+                    // It's broken, skip immediately
+                    autopilotIndex++;
+                } else {
                     autopilotState = "LISTENING";
                     document.getElementById('np-status').style.display = "block";
                     document.getElementById('np-status').innerText = "AUTOPILOT: LISTENING...";
                     document.getElementById('skip-btn').style.display = 'flex';
-                } else {
-                    // Just a path point. Keep moving.
-                    autopilotIndex++;
-                    if (autopilotIndex >= guidePath.length) clearGuide();
                 }
             } else {
-                // Move towards waypoint
-                let moveSpeed = 4.0 / camera.zoom;
-                player.x += (dx / dist) * moveSpeed;
-                player.y += (dy / dist) * moveSpeed;
+                autopilotIndex++;
+                if (autopilotIndex >= guidePath.length) clearGuide();
             }
+        } else {
+            let moveSpeed = 4.0 / camera.zoom;
+            player.x += (dx / dist) * moveSpeed; player.y += (dy / dist) * moveSpeed;
         }
-    } else {
-        // MANUAL MODE
-        if (keys['w']) player.y -= 6/camera.zoom;
-        if (keys['s']) player.y += 6/camera.zoom;
-        if (keys['a']) player.x -= 6/camera.zoom;
-        if (keys['d']) player.x += 6/camera.zoom;
+    } else if (!isAutopilot) {
+        if (keys['w']) player.y -= 6/camera.zoom; if (keys['s']) player.y += 6/camera.zoom;
+        if (keys['a']) player.x -= 6/camera.zoom; if (keys['d']) player.x += 6/camera.zoom;
     }
 
     camera.zoom += (camera.targetZoom - camera.zoom) * 0.1;
-
-    // Trace
     if (pathHistory.length === 0 || Math.abs(player.x - pathHistory[pathHistory.length-1].x) > 10 || Math.abs(player.y - pathHistory[pathHistory.length-1].y) > 10) {
         pathHistory.push({x: player.x, y: player.y});
     }
 
     // Fog
-    let fogX = player.x + 2000;
-    let fogY = player.y + 2000;
+    let fogX = player.x + 2000; let fogY = player.y + 2000;
     fogCtx.globalCompositeOperation = "destination-out";
     fogCtx.beginPath(); fogCtx.arc(fogX, fogY, 150, 0, Math.PI*2); fogCtx.fill();
     fogCtx.globalCompositeOperation = "source-over";
 
-    // DRAW SCENE
+    // Clear
     ctx.fillStyle = "#000"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.save();
-    ctx.translate(canvas.width / 2, canvas.height / 2);
-    ctx.scale(camera.zoom, camera.zoom);
-    ctx.translate(-player.x, -player.y);
+    ctx.save(); ctx.translate(canvas.width/2, canvas.height/2); ctx.scale(camera.zoom, camera.zoom); ctx.translate(-player.x, -player.y);
 
     // Anchors
     ctx.globalCompositeOperation = "screen"; 
@@ -393,51 +532,49 @@ function draw() {
     if (guidePath && guidePath.length > 1) {
         ctx.strokeStyle = isAutopilot ? "rgba(0, 255, 255, 0.8)" : "rgba(0, 255, 255, 0.4)";
         ctx.lineWidth = 3; ctx.setLineDash([15, 10]); ctx.beginPath();
-        
         let startIdx = autopilotIndex > 0 ? autopilotIndex - 1 : 0;
         ctx.moveTo(player.x, player.y);
         for(let i=autopilotIndex; i<guidePath.length; i++) ctx.lineTo(guidePath[i].x, guidePath[i].y);
         ctx.stroke(); ctx.setLineDash([]);
         
-        // Draw Stops (Visual Feedback)
         for(let i=autopilotIndex; i<guidePath.length; i++) {
             let pt = guidePath[i];
-            // Only draw dots if it matches a song
             if (songs.some(s => Math.abs(s.x-pt.x)<1 && Math.abs(s.y-pt.y)<1)) {
                 ctx.fillStyle = "cyan"; ctx.beginPath(); ctx.arc(pt.x, pt.y, 6, 0, Math.PI*2); ctx.fill();
             }
         }
-        
-        let end = guidePath[guidePath.length-1];
-        ctx.shadowBlur = 10; ctx.shadowColor = "cyan"; ctx.fillStyle = "cyan"; ctx.beginPath(); ctx.arc(end.x, end.y, 8, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
     }
 
-    // Songs
+    // Songs (OPTIMIZATION: Only checks nearby songs)
     let touching = false;
+    let viewW = canvas.width / camera.zoom;
+    let viewH = canvas.height / camera.zoom;
+    
     songs.forEach(s => {
-        let floatY = s.y + Math.sin(time + s.offset) * 6;
+        // Culling: Only draw if within reasonable distance
+        if (Math.abs(s.x - player.x) > viewW && Math.abs(s.y - player.y) > viewH) return;
+
+        let floatY = isEditorMode ? s.y : s.y + Math.sin(time + s.offset) * 6;
         let dist = Math.sqrt((player.x-s.x)**2 + (player.y-floatY)**2);
         let isTouching = dist < (35 + player.size);
         let r = isTouching ? 50 : 35;
-        
-        if (guidePath && guidePath.some(pt => Math.abs(pt.x-s.x)<1 && Math.abs(pt.y-s.y)<1)) {
-            ctx.strokeStyle = "cyan"; ctx.lineWidth = 3;
-        } else {
-            ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.lineWidth = 1.5;
-        }
+
+        // Styles
+        if (s.status === 'error') { ctx.strokeStyle = "#ff0000"; ctx.lineWidth = 2; } // Broken song
+        else if (isEditorMode && draggedSong === s) { ctx.strokeStyle = "#0088ff"; ctx.lineWidth = 4; } 
+        else if (guidePath && guidePath.some(pt => Math.abs(pt.x-s.x)<1 && Math.abs(pt.y-s.y)<1)) { ctx.strokeStyle = "cyan"; ctx.lineWidth = 3; }
+        else { ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.lineWidth = 1.5; }
 
         ctx.beginPath(); ctx.arc(s.x, floatY, r, 0, Math.PI*2);
-        
         if (isTouching) {
             touching = true;
-            ctx.shadowBlur = 30; ctx.shadowColor = "white"; ctx.fillStyle = "white"; ctx.fill(); ctx.shadowBlur = 0;
+            ctx.shadowBlur = 30; ctx.shadowColor = s.status==='error'?"red":"white"; 
+            ctx.fillStyle = s.status==='error'?"#330000":"white"; ctx.fill(); ctx.shadowBlur = 0;
             if(currentSongId !== s.id) { playSong(s); currentSongId = s.id; }
-        } else {
-            ctx.fillStyle = "rgba(255,255,255,0.05)"; ctx.fill(); ctx.stroke();
-        }
+        } else { ctx.fillStyle = isEditorMode ? "rgba(0, 100, 255, 0.1)" : "rgba(255,255,255,0.05)"; ctx.fill(); ctx.stroke(); }
 
-        if (camera.zoom > 0.5) {
-             ctx.fillStyle = isTouching ? "black" : "rgba(255,255,255,0.7)";
+        if (camera.zoom > 0.5 || isEditorMode) {
+             ctx.fillStyle = isTouching ? (s.status==='error'?"red":"black") : "rgba(255,255,255,0.7)";
              ctx.font = isTouching ? "bold 12px Arial" : "11px Arial";
              ctx.textAlign = "center"; ctx.fillText(s.title, s.x, floatY + r + 15);
         }
@@ -446,12 +583,7 @@ function draw() {
     if(!touching && currentSongId && !isAutopilot) { stopSong(); currentSongId = null; }
 
     ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(player.x, player.y, player.size, 0, Math.PI*2); ctx.fill();
-
-    ctx.save();
-    ctx.globalCompositeOperation = "source-over";
-    ctx.drawImage(fogCanvas, -2000, -2000);
-    ctx.restore();
-
+    ctx.save(); ctx.globalCompositeOperation = "source-over"; ctx.drawImage(fogCanvas, -2000, -2000); ctx.restore();
     ctx.restore();
     requestAnimationFrame(draw);
 }
