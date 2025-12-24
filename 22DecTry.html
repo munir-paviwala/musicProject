@@ -250,8 +250,26 @@ function startRandomJourney() {
     
     document.getElementById('clear-guide-btn').style.display = 'flex';
     document.getElementById('auto-btn').style.display = 'flex';
-    document.getElementById('auto-btn').innerText = "▶ Start Tour";
-    isAutopilot = false; autopilotIndex = 1; autopilotState = "IDLE"; camera.targetZoom = 0.6;
+    document.getElementById('auto-btn').innerText = "⏸ Pause Tour";
+    
+    // If a song is already playing, wait for it to finish before moving
+    if (currentSongId) {
+        isAutopilot = true;
+        autopilotIndex = 1;
+        autopilotState = "LISTENING";
+        document.getElementById('np-status').style.display = "block";
+        document.getElementById('np-status').innerText = "TOUR QUEUED: Waiting for current song to finish...";
+        document.getElementById('skip-btn').style.display = 'none';
+    } else {
+        isAutopilot = true; 
+        autopilotIndex = 1; 
+        autopilotState = "MOVING"; 
+        document.getElementById('skip-btn').style.display = 'flex';
+        document.getElementById('np-status').style.display = "block";
+        document.getElementById('np-status').innerText = "AUTOPILOT: MOVING...";
+    }
+    
+    camera.targetZoom = 0.6;
 }
 
 function toggleAutopilot() {
@@ -278,7 +296,7 @@ function forceNextSong() {
     if (autopilotIndex >= guidePath.length) { clearGuide(); } 
     else {
         autopilotState = "MOVING";
-        document.getElementById('skip-btn').style.display = 'none';
+        document.getElementById('skip-btn').style.display = 'flex'; // Keep skip button visible
         document.getElementById('np-status').innerText = "MOVING TO NEXT STOP...";
     }
 }
@@ -300,45 +318,72 @@ function startNeighborhoodJourney() {
         player.y = startSong.y;
     }
     
-    // Find all songs in the neighborhood (within ~500 units)
-    let neighborhood = songs.filter(s => {
-        let dist = Math.sqrt((s.x - startSong.x)**2 + (s.y - startSong.y)**2);
-        return dist < 500 && s.status !== 'error' && s !== startSong;
-    });
+    // Build spiral path: expand outward in rings
+    let visited = new Set();
+    let spiral = [];
+    spiral.push({x: startSong.x, y: startSong.y});
+    visited.add(startSong);
     
-    if (neighborhood.length < 2) {
+    let maxRingDistance = 500;
+    let ringWidth = 80; // Distance between each ring
+    
+    for (let ringDist = ringWidth; ringDist < maxRingDistance; ringDist += ringWidth) {
+        // Find all songs in this ring (between ringDist-ringWidth/2 and ringDist+ringWidth/2)
+        let ringMin = ringDist - ringWidth / 2;
+        let ringMax = ringDist + ringWidth / 2;
+        
+        let ringSongs = songs.filter(s => {
+            let dist = Math.sqrt((s.x - startSong.x)**2 + (s.y - startSong.y)**2);
+            return dist >= ringMin && dist <= ringMax && s.status !== 'error' && !visited.has(s);
+        });
+        
+        if (ringSongs.length === 0) continue; // Skip empty rings
+        
+        // Sort by angle to create smooth circular motion
+        ringSongs.sort((a, b) => {
+            let angleA = Math.atan2(a.y - startSong.y, a.x - startSong.x);
+            let angleB = Math.atan2(b.y - startSong.y, b.x - startSong.x);
+            return angleA - angleB;
+        });
+        
+        // Add ring songs to spiral
+        ringSongs.forEach(song => {
+            spiral.push({x: song.x, y: song.y});
+            visited.add(song);
+        });
+    }
+    
+    if (spiral.length < 2) {
         return alert("Not enough songs in this neighborhood! Try another area.");
     }
     
-    // Sort by angle around the start point (spiral/circular ordering)
-    neighborhood.sort((a, b) => {
-        let angleA = Math.atan2(a.y - startSong.y, a.x - startSong.x);
-        let angleB = Math.atan2(b.y - startSong.y, b.x - startSong.x);
-        let distA = Math.sqrt((a.x - startSong.x)**2 + (a.y - startSong.y)**2);
-        let distB = Math.sqrt((b.x - startSong.x)**2 + (b.y - startSong.y)**2);
-        
-        // Sort by angle first, then by distance
-        if (Math.abs(angleA - angleB) > 0.3) return angleA - angleB;
-        return distA - distB;
-    });
+    // Build path, optionally loop back
+    guidePath = spiral;
+    guidePath.push({x: startSong.x, y: startSong.y}); // Loop back to start
     
-    // Build path through neighborhood
-    guidePath = [];
-    guidePath.push({x: startSong.x, y: startSong.y});
-    neighborhood.forEach(song => {
-        guidePath.push({x: song.x, y: song.y});
-    });
-    // Loop back to start to create a cycle
-    guidePath.push({x: startSong.x, y: startSong.y});
-    
-    guideTarget = null; // No specific target for neighborhood tours
+    guideTarget = null;
     document.getElementById('clear-guide-btn').style.display = 'flex';
     document.getElementById('auto-btn').style.display = 'flex';
-    document.getElementById('auto-btn').innerText = "▶ Start Tour";
-    isAutopilot = false; 
-    autopilotIndex = 1; 
-    autopilotState = "IDLE"; 
-    camera.targetZoom = 0.7; // Slightly zoomed in to see neighborhood
+    document.getElementById('auto-btn').innerText = "⏸ Pause Tour";
+    
+    // If a song is already playing, wait for it to finish before moving
+    if (currentSongId) {
+        isAutopilot = true;
+        autopilotIndex = 1;
+        autopilotState = "LISTENING";
+        document.getElementById('np-status').style.display = "block";
+        document.getElementById('np-status').innerText = "TOUR QUEUED: Waiting for current song to finish...";
+        document.getElementById('skip-btn').style.display = 'none';
+    } else {
+        isAutopilot = true; 
+        autopilotIndex = 1; 
+        autopilotState = "MOVING"; 
+        document.getElementById('skip-btn').style.display = 'flex';
+        document.getElementById('np-status').style.display = "block";
+        document.getElementById('np-status').innerText = "AUTOPILOT: MOVING...";
+    }
+    
+    camera.targetZoom = 0.7;
 }
 
 function clearGuide() {
@@ -584,9 +629,11 @@ function draw() {
     ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(player.x, player.y, player.size, 0, Math.PI*2); ctx.fill();
     ctx.save(); ctx.globalCompositeOperation = "source-over"; ctx.drawImage(fogCanvas, -2000, -2000); ctx.restore();
     ctx.restore();
-    requestAnimationFrame(draw);
 }
-draw();
+
+// Use setInterval for main loop instead of requestAnimationFrame
+// This ensures smooth movement even in background tabs
+setInterval(draw, 16); // ~60fps, runs in background
 </script>
 </body>
 </html>
