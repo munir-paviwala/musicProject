@@ -556,7 +556,7 @@ function draw() {
     ctx.save(); ctx.translate(canvas.width/2, canvas.height/2); ctx.scale(camera.zoom, camera.zoom); ctx.translate(-player.x, -player.y);
 
     // Anchors
-    ctx.globalCompositeOperation = "screen"; 
+    ctx.globalCompositeOperation = "lighter"; 
     anchors.forEach(a => {
         let grad = ctx.createRadialGradient(a.x, a.y, 0, a.x, a.y, a.radius);
         grad.addColorStop(0, a.color); grad.addColorStop(1, "rgba(0,0,0,0)");
