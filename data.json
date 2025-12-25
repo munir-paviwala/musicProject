@@ -2,99 +2,99 @@
   "anchors": [
     {
       "id": "A1",
-      "x": 0,
+      "x": 3800,
       "y": 0,
-      "color": "#ff4400",
+      "color": "#ff0000",
       "radius": 1200,
-      "name": "The Core"
+      "name": "Red"
     },
     {
       "id": "A2",
-      "x": -2500,
-      "y": -2500,
-      "color": "#4444ff",
+      "x": 3192,
+      "y": 1900,
+      "color": "#ff7f00",
       "radius": 1100,
-      "name": "Deep Space"
+      "name": "Orange"
     },
     {
       "id": "A3",
-      "x": 2800,
-      "y": 900,
-      "color": "#ff1493",
-      "radius": 700,
-      "name": "Manually Imported Gems"
+      "x": 1900,
+      "y": 3192,
+      "color": "#ffff00",
+      "radius": 1100,
+      "name": "Yellow"
     },
     {
       "id": "A4",
-      "x": 3500,
-      "y": -3200,
-      "color": "#00d9ff",
-      "radius": 950,
-      "name": "Neon Dreams"
+      "x": 0,
+      "y": 3800,
+      "color": "#00ff00",
+      "radius": 1100,
+      "name": "Green"
     },
     {
       "id": "A5",
-      "x": -3800,
-      "y": 2400,
-      "color": "#00ff88",
-      "radius": 850,
-      "name": "Emerald Valley"
+      "x": -1900,
+      "y": 3192,
+      "color": "#00ffff",
+      "radius": 1100,
+      "name": "Cyan"
     },
     {
       "id": "A6",
-      "x": 1200,
-      "y": -3600,
-      "color": "#ffaa00",
-      "radius": 600,
-      "name": "Sunset Heights"
+      "x": -3192,
+      "y": 1900,
+      "color": "#0000ff",
+      "radius": 1100,
+      "name": "Blue"
     },
     {
       "id": "A7",
-      "x": -1800,
-      "y": 3200,
-      "color": "#ff66cc",
-      "radius": 750,
-      "name": "Magenta Twilight"
+      "x": -3800,
+      "y": 0,
+      "color": "#8b00ff",
+      "radius": 1100,
+      "name": "Violet"
     },
     {
       "id": "A8",
-      "x": 4200,
-      "y": 2100,
-      "color": "#6600ff",
-      "radius": 650,
-      "name": "Purple Expanse"
+      "x": -3192,
+      "y": -1900,
+      "color": "#ff00ff",
+      "radius": 1100,
+      "name": "Magenta"
     },
     {
       "id": "A9",
-      "x": -4100,
-      "y": -1500,
-      "color": "#ffff00",
-      "radius": 700,
-      "name": "Golden Haven"
+      "x": -1900,
+      "y": -3192,
+      "color": "#ff4466",
+      "radius": 1100,
+      "name": "Rose"
     },
     {
       "id": "A10",
-      "x": 2200,
-      "y": 3400,
-      "color": "#00ffff",
-      "radius": 550,
-      "name": "Cyan Oasis"
+      "x": 0,
+      "y": -3800,
+      "color": "#ff1493",
+      "radius": 1100,
+      "name": "Deep Pink"
     },
     {
       "id": "A11",
-      "x": -3200,
-      "y": -3800,
-      "color": "#ff3366",
-      "radius": 800,
-      "name": "Crimson Night"
+      "x": 1900,
+      "y": -3192,
+      "color": "#ff6b00",
+      "radius": 1100,
+      "name": "Red Orange"
     },
     {
       "id": "A12",
-      "x": 3900,
-      "y": -1200,
-      "color": "#00ff66",
-      "radius": 500,
-      "name": "Lime Fields"
+      "x": 3192,
+      "y": -1900,
+      "color": "#ffcc00",
+      "radius": 1100,
+      "name": "Golden"
     },
     {
       "id": "A13",
@@ -159,6 +159,358 @@
       "color": "#9900ff",
       "radius": 700,
       "name": "Indigo Canyon"
+    },
+    {
+      "id": "A21",
+      "x": -1500,
+      "y": -1500,
+      "color": "#ff6600",
+      "radius": 650,
+      "name": "Coral Drift"
+    },
+    {
+      "id": "A22",
+      "x": 1800,
+      "y": -1200,
+      "color": "#00ffdd",
+      "radius": 700,
+      "name": "Turquoise Stream"
+    },
+    {
+      "id": "A23",
+      "x": -3000,
+      "y": 500,
+      "color": "#ff00aa",
+      "radius": 750,
+      "name": "Hot Pink Nebula"
+    },
+    {
+      "id": "A24",
+      "x": 2000,
+      "y": -3000,
+      "color": "#00dd88",
+      "radius": 600,
+      "name": "Verdant Mist"
+    },
+    {
+      "id": "A25",
+      "x": -2500,
+      "y": 1500,
+      "color": "#dd00ff",
+      "radius": 700,
+      "name": "Violet Echo"
+    },
+    {
+      "id": "A26",
+      "x": 3500,
+      "y": 900,
+      "color": "#00ff33",
+      "radius": 650,
+      "name": "Lime Horizon"
+    },
+    {
+      "id": "A27",
+      "x": -3500,
+      "y": -1000,
+      "color": "#ff8800",
+      "radius": 700,
+      "name": "Tangerine Zone"
+    },
+    {
+      "id": "A28",
+      "x": 1000,
+      "y": 1500,
+      "color": "#0088ff",
+      "radius": 700,
+      "name": "Sapphire Lake"
+    },
+    {
+      "id": "A29",
+      "x": -1000,
+      "y": -3500,
+      "color": "#ffdd00",
+      "radius": 650,
+      "name": "Sunshine Peak"
+    },
+    {
+      "id": "A30",
+      "x": 4000,
+      "y": 0,
+      "color": "#ff0055",
+      "radius": 700,
+      "name": "Cherry Blossom"
+    },
+    {
+      "id": "A31",
+      "x": -4000,
+      "y": 0,
+      "color": "#00ffcc",
+      "radius": 700,
+      "name": "Minty Fresh"
+    },
+    {
+      "id": "A32",
+      "x": 0,
+      "y": 4000,
+      "color": "#ff3300",
+      "radius": 700,
+      "name": "Sunset Boulevard"
+    },
+    {
+      "id": "A33",
+      "x": 0,
+      "y": -4000,
+      "color": "#00ff00",
+      "radius": 700,
+      "name": "Neon Green"
+    },
+    {
+      "id": "A34",
+      "x": 2500,
+      "y": 1500,
+      "color": "#ff00ff",
+      "radius": 650,
+      "name": "Magenta Field"
+    },
+    {
+      "id": "A35",
+      "x": -2500,
+      "y": -1500,
+      "color": "#00ddff",
+      "radius": 700,
+      "name": "Cyan Waves"
+    },
+    {
+      "id": "A36",
+      "x": 1500,
+      "y": 3000,
+      "color": "#ffaa55",
+      "radius": 600,
+      "name": "Peach Paradise"
+    },
+    {
+      "id": "A37",
+      "x": -1500,
+      "y": -2500,
+      "color": "#aa00ff",
+      "radius": 650,
+      "name": "Lavender Dream"
+    },
+    {
+      "id": "A38",
+      "x": 3000,
+      "y": -1500,
+      "color": "#00ff88",
+      "radius": 700,
+      "name": "Jade Valley"
+    },
+    {
+      "id": "A39",
+      "x": -3500,
+      "y": 2000,
+      "color": "#ff6666",
+      "radius": 650,
+      "name": "Coral Reef"
+    },
+    {
+      "id": "A40",
+      "x": 500,
+      "y": 2500,
+      "color": "#6666ff",
+      "radius": 700,
+      "name": "Periwinkle"
+    },
+    {
+      "id": "A41",
+      "x": -2000,
+      "y": 3000,
+      "color": "#ffdd88",
+      "radius": 800,
+      "name": "Honey Glow"
+    },
+    {
+      "id": "A42",
+      "x": 2500,
+      "y": -2000,
+      "color": "#88ddff",
+      "radius": 800,
+      "name": "Sky Blue"
+    },
+    {
+      "id": "A43",
+      "x": -1200,
+      "y": 1000,
+      "color": "#ff88dd",
+      "radius": 900,
+      "name": "Rose Mist"
+    },
+    {
+      "id": "A44",
+      "x": 1800,
+      "y": 500,
+      "color": "#88ff99",
+      "radius": 850,
+      "name": "Spring Green"
+    },
+    {
+      "id": "A45",
+      "x": -3200,
+      "y": 1200,
+      "color": "#ffaa88",
+      "radius": 800,
+      "name": "Sunset Orange"
+    },
+    {
+      "id": "A46",
+      "x": 3200,
+      "y": -800,
+      "color": "#88ccff",
+      "radius": 800,
+      "name": "Ocean Blue"
+    },
+    {
+      "id": "A47",
+      "x": 200,
+      "y": -2500,
+      "color": "#ff99ff",
+      "radius": 900,
+      "name": "Orchid"
+    },
+    {
+      "id": "A48",
+      "x": -800,
+      "y": 2000,
+      "color": "#99ff88",
+      "radius": 850,
+      "name": "Lush Valley"
+    },
+    {
+      "id": "A49",
+      "x": 3300,
+      "y": 1500,
+      "color": "#ffcc88",
+      "radius": 800,
+      "name": "Peachy Keen"
+    },
+    {
+      "id": "A50",
+      "x": -2800,
+      "y": -1200,
+      "color": "#88ffcc",
+      "radius": 850,
+      "name": "Mint Green"
+    },
+    {
+      "id": "A51",
+      "x": 1500,
+      "y": -800,
+      "color": "#dd88ff",
+      "radius": 800,
+      "name": "Grape Purple"
+    },
+    {
+      "id": "A52",
+      "x": -1500,
+      "y": 500,
+      "color": "#ffdd99",
+      "radius": 900,
+      "name": "Golden Yellow"
+    },
+    {
+      "id": "A53",
+      "x": 2200,
+      "y": 1000,
+      "color": "#99ddff",
+      "radius": 850,
+      "name": "Light Blue"
+    },
+    {
+      "id": "A54",
+      "x": -2200,
+      "y": -500,
+      "color": "#ff99aa",
+      "radius": 800,
+      "name": "Blush Pink"
+    },
+    {
+      "id": "A55",
+      "x": 800,
+      "y": -1500,
+      "color": "#99ffaa",
+      "radius": 850,
+      "name": "Lime Fresh"
+    },
+    {
+      "id": "A56",
+      "x": -600,
+      "y": -1000,
+      "color": "#ff88ff",
+      "radius": 900,
+      "name": "Magenta Light"
+    },
+    {
+      "id": "A57",
+      "x": 1200,
+      "y": 1200,
+      "color": "#88ffff",
+      "radius": 850,
+      "name": "Bright Cyan"
+    },
+    {
+      "id": "A58",
+      "x": -1800,
+      "y": -1000,
+      "color": "#ffaa99",
+      "radius": 800,
+      "name": "Salmon"
+    },
+    {
+      "id": "A59",
+      "x": 2800,
+      "y": -1800,
+      "color": "#aa88ff",
+      "radius": 900,
+      "name": "Violet Blue"
+    },
+    {
+      "id": "A60",
+      "x": -2500,
+      "y": 300,
+      "color": "#99ff99",
+      "radius": 850,
+      "name": "Neon Green Light"
+    },
+    {
+      "id": "A61",
+      "x": 600,
+      "y": 800,
+      "color": "#ffcc99",
+      "radius": 800,
+      "name": "Peach Orange"
+    },
+    {
+      "id": "A62",
+      "x": -1000,
+      "y": -2000,
+      "color": "#99ccff",
+      "radius": 900,
+      "name": "Sky Cyan"
+    },
+    {
+      "id": "A63",
+      "x": 2000,
+      "y": 2000,
+      "color": "#ff99cc",
+      "radius": 850,
+      "name": "Pink Bubble"
+    },
+    {
+      "id": "A64",
+      "x": -3100,
+      "y": -2200,
+      "color": "#99ff77",
+      "radius": 800,
+      "name": "Chartreuse"
     }
   ],
   "songs": [
