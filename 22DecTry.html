@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <title>Munir's Music Gallery</title>
     <style>
         body { margin: 0; background: #000; color: white; font-family: 'Helvetica Neue', sans-serif; overflow: hidden; }
-        #canvas { display: block; cursor: grab; }
+        #canvas { display: block; cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; }
         #canvas:active { cursor: grabbing; }
         
         #ui { position: absolute; top: 20px; left: 20px; pointer-events: none; mix-blend-mode: difference; z-index: 20; }
@@ -79,7 +80,8 @@
 <button id="info-toggle" style="position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 16px; border-radius: 20px; cursor: pointer; backdrop-filter: blur(5px); z-index: 10; pointer-events: auto;">ℹ️ Guide</button>
 <div id="info-panel" style="position: absolute; top: 70px; left: 20px; background: rgba(10,10,10,0.85); border: 1px solid rgba(255,255,255,0.15); padding: 15px 20px; border-radius: 8px; width: 280px; backdrop-filter: blur(10px); z-index: 15; display: none; pointer-events: auto;">
     <h3 style="margin: 0 0 10px 0; font-size: 1em;">How to Explore</h3>
-    <p style="margin: 8px 0; font-size: 0.9em; color: #ccc;"><strong>Move:</strong> Use WASD or drag the canvas</p>
+    <p style="margin: 8px 0; font-size: 0.9em; color: #ccc;"><strong>Move:</strong> Use WASD, drag the canvas, or swipe on touch</p>
+    <p style="margin: 8px 0; font-size: 0.9em; color: #ccc;"><strong>Zoom:</strong> Use scroll wheel or pinch on touch</p>
     <p style="margin: 8px 0; font-size: 0.9em; color: #ccc;"><strong>Discover:</strong> Walk into color fields to find songs</p>
     <p style="margin: 8px 0; font-size: 0.9em; color: #ccc;"><strong>Journey:</strong> Use the buttons below to take a guided tour through the landscape</p>
     <p style="margin: 8px 0; font-size: 0.9em; color: #aaa; font-style: italic;">Enjoy the music as it plays and explore the emotions captured in color.</p>
@@ -513,22 +515,69 @@ window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 window.addEventListener('wheel', e => { e.preventDefault(); camera.targetZoom = Math.max(0.2, Math.min(3.0, camera.targetZoom - e.deltaY * 0.001)); }, { passive: false });
 
 function toWorld(sx, sy) { const cx = canvas.width/2; const cy = canvas.height/2; return { x: (sx - cx)/camera.zoom + player.x, y: (sy - cy)/camera.zoom + player.y }; }
-canvas.addEventListener('mousedown', e => { 
-    mouse.dragging = true; mouse.x = e.clientX; mouse.y = e.clientY; 
+
+// Unified touch/mouse handler
+function handlePointerDown(x, y) {
+    mouse.dragging = true; mouse.x = x; mouse.y = y; 
     if(isAutopilot) toggleAutopilot(); 
     if (isEditorMode) {
-        const m = toWorld(e.clientX, e.clientY);
+        const m = toWorld(x, y);
         let clicked = false;
         songs.forEach(s => { if (Math.sqrt((m.x-s.x)**2 + (m.y-s.y)**2) < 40) { draggedSong = s; clicked = true; editTitle.value = s.title; editNote.value = s.note || ""; } });
         if(!clicked) draggedSong = null;
     }
-});
-window.addEventListener('mouseup', () => mouse.dragging = false);
-canvas.addEventListener('mousemove', e => {
-    const dx = e.clientX - mouse.x; const dy = e.clientY - mouse.y; mouse.x = e.clientX; mouse.y = e.clientY;
+}
+
+function handlePointerMove(x, y) {
+    const dx = x - mouse.x; const dy = y - mouse.y; mouse.x = x; mouse.y = y;
     if (draggedSong && isEditorMode && mouse.dragging) { draggedSong.x += dx / camera.zoom; draggedSong.y += dy / camera.zoom; return; }
     if(mouse.dragging) { player.x -= dx / camera.zoom; player.y -= dy / camera.zoom; }
-});
+}
+
+function handlePointerUp() {
+    mouse.dragging = false;
+}
+
+// Mouse events
+canvas.addEventListener('mousedown', e => handlePointerDown(e.clientX, e.clientY));
+window.addEventListener('mouseup', handlePointerUp);
+canvas.addEventListener('mousemove', e => handlePointerMove(e.clientX, e.clientY));
+
+// Touch events
+canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    if (e.touches.length > 0) {
+        handlePointerDown(e.touches[0].clientX, e.touches[0].clientY);
+    }
+    if (e.touches.length === 2) {
+        // Store initial pinch distance for zoom
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        mouse.pinchDistance = Math.sqrt(dx * dx + dy * dy);
+    }
+}, { passive: false });
+
+window.addEventListener('touchend', e => {
+    handlePointerUp();
+    mouse.pinchDistance = null;
+}, { passive: false });
+
+canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    
+    // Handle multi-touch zoom (pinch)
+    if (e.touches.length === 2 && mouse.pinchDistance !== null) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const newPinchDistance = Math.sqrt(dx * dx + dy * dy);
+        const zoomFactor = newPinchDistance / mouse.pinchDistance;
+        camera.targetZoom = Math.max(0.2, Math.min(3.0, camera.targetZoom * zoomFactor));
+        mouse.pinchDistance = newPinchDistance;
+    } else if (e.touches.length === 1) {
+        // Single touch - just move around
+        handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
+    }
+}, { passive: false });
 
 // ==========================================
 // 5. RENDER (Optimized Loop)
