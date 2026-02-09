@@ -155,9 +155,19 @@ let anchors = [];
 
 // LOAD
 fetch('data.json').then(r => r.json()).then(data => {
-    songs = data.songs || [];
+    // Handle new structure with playlists
+    if (data.playlists && Array.isArray(data.playlists)) {
+        songs = [];
+        data.playlists.forEach(playlist => {
+            if (playlist.songs && Array.isArray(playlist.songs)) {
+                songs = songs.concat(playlist.songs);
+            }
+        });
+    } else {
+        songs = data.songs || [];
+    }
     anchors = data.anchors || [];
-    console.log(`Loaded ${songs.length} songs.`);
+    console.log(`Loaded ${songs.length} songs from ${data.playlists ? data.playlists.length + ' playlists' : 'archive'}.`);
 }).catch(e => console.error("Data Error:", e));
 
 // ==========================================
@@ -189,8 +199,18 @@ function exportJSON() {
     const dataObj = {
         anchors: anchors,
         songs: songs.map(s => ({
-            id: s.id, ytId: s.ytId, x: Math.round(s.x), y: Math.round(s.y), 
-            title: s.title, note: s.note, offset: Math.round(s.offset), status: s.status // Preserve status
+            ytId: s.ytId, 
+            x: Math.round(s.x), 
+            y: Math.round(s.y), 
+            title: s.title, 
+            artist: s.artist || "",
+            album: s.album || "",
+            duration: s.duration || 0,
+            thumbnail: s.thumbnail || "",
+            playlistSource: s.playlistSource || "",
+            note: s.note || "",
+            offset: Math.round(s.offset), 
+            status: s.status || 'active'
         }))
     };
     exportBox.value = JSON.stringify(dataObj, null, 2);
@@ -241,7 +261,15 @@ function startRandomJourney() {
         }
     });
     waypoints.sort((a, b) => ((a.x - player.x)**2 + (a.y - player.y)**2) - ((b.x - player.x)**2 + (b.y - player.y)**2));
-    if (waypoints.length > 3) waypoints = [waypoints[0], waypoints[Math.floor(waypoints.length/2)], waypoints[waypoints.length-1]];
+    // Keep up to 22 waypoints for a 20-25 song journey (accounting for start + end)
+    if (waypoints.length > 22) {
+        // Sample evenly throughout the array instead of just picking 3
+        let sampled = [];
+        for (let i = 0; i < 22; i++) {
+            sampled.push(waypoints[Math.floor(i * waypoints.length / 22)]);
+        }
+        waypoints = sampled;
+    }
 
     guidePath = [];
     guidePath.push({x: player.x, y: player.y}); 
@@ -421,7 +449,7 @@ function onPlayerStateChange(event) {
 function onPlayerError(event) {
     console.warn("Song Unavailable. Code:", event.data);
     // Find the current song object
-    let song = songs.find(s => s.id === currentSongId);
+    let song = songs.find(s => s.ytId === currentSongId);
     if (song) {
         song.status = 'error'; // Mark as red forever
         document.getElementById('np-title').innerText = "SONG UNAVAILABLE";
@@ -614,7 +642,7 @@ function draw() {
             touching = true;
             ctx.shadowBlur = 30; ctx.shadowColor = s.status==='error'?"red":"white"; 
             ctx.fillStyle = s.status==='error'?"#330000":"white"; ctx.fill(); ctx.shadowBlur = 0;
-            if(currentSongId !== s.id) { playSong(s); currentSongId = s.id; }
+            if(currentSongId !== s.ytId) { playSong(s); currentSongId = s.ytId; }
         } else { ctx.fillStyle = isEditorMode ? "rgba(0, 100, 255, 0.1)" : "rgba(255,255,255,0.05)"; ctx.fill(); ctx.stroke(); }
 
         if (camera.zoom > 0.5 || isEditorMode) {
