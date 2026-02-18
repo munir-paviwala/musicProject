@@ -1,17 +1,1132 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting...</title>
-    
-    <meta http-equiv="refresh" content="0; url=xyz.html">
-    
-    <script type="text/javascript">
-        window.location.href = "22DecTry.html";
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Munir's Music Gallery (Unified)</title>
+    <style>
+        /* === RESET & BASE (From 22DecTry) === */
+        body {
+            margin: 0;
+            background: #000;
+            color: white;
+            font-family: 'Helvetica Neue', sans-serif;
+            overflow: hidden;
+        }
+
+        #canvas {
+            display: block;
+            cursor: grab;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        #canvas:active {
+            cursor: grabbing;
+        }
+
+        /* === UI OVERLAYS (From 22DecTry) === */
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            pointer-events: none;
+            mix-blend-mode: difference;
+            z-index: 20;
+        }
+
+        /* JOURNEY PANEL (From 22DecTry) */
+        #journey-panel {
+            position: absolute;
+            top: 150px;
+            left: 20px;
+            pointer-events: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 50;
+        }
+
+        .journey-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            font-size: 0.9em;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .journey-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(5px);
+        }
+
+        #auto-btn {
+            border-color: #00ffff;
+            color: #00ffff;
+            background: rgba(0, 255, 255, 0.1);
+            display: none;
+        }
+
+        #skip-btn {
+            border-color: #ffaa00;
+            color: #ffaa00;
+            background: rgba(255, 170, 0, 0.1);
+            display: none;
+        }
+
+        /* === ADMIN PANEL STYLES (From index.html) === */
+        #admin-panel {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 350px;
+            height: 100%;
+            background: #0d1117;
+            border-left: 1px solid #30363d;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        #admin-panel.open {
+            transform: translateX(0);
+        }
+
+        .admin-content {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .admin-section {
+            margin-bottom: 25px;
+        }
+
+        .admin-label {
+            display: block;
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8b949e;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        textarea.code-box {
+            width: 100%;
+            height: 80px;
+            background: #000;
+            border: 1px solid #30363d;
+            color: #00ff88;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 11px;
+            padding: 10px;
+            box-sizing: border-box;
+            resize: vertical;
+            border-radius: 6px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            font-size: 0.9em;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: #0088ff;
+            border-color: #0088ff;
+        }
+
+        .btn-primary:hover {
+            background: #0099ff;
+        }
+
+        .btn-danger {
+            background: rgba(255, 50, 50, 0.2);
+            border-color: #ff3333;
+            color: #ffcccc;
+        }
+
+        .bookmarklet-btn {
+            display: block;
+            background: #238636;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            text-decoration: none;
+            border: 1px dashed rgba(255, 255, 255, 0.4);
+            cursor: move;
+        }
+
+        /* === PLAYER UI (From 22DecTry + index.html tweaks) === */
+        #now-playing {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 15px 25px;
+            border-radius: 30px;
+            display: none;
+            text-align: center;
+            z-index: 90;
+        }
+
+        #np-title {
+            font-weight: 700;
+            font-size: 1.1em;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        #video-dock {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 320px;
+            height: 180px;
+            background: #000;
+            border: 2px solid #333;
+            border-radius: 12px;
+            overflow: hidden;
+            z-index: 100;
+            display: none;
+            transition: all 0.4s;
+        }
+
+        #video-dock:hover {
+            width: 640px;
+            height: 360px;
+            border-color: white;
+            transform: translate(-20px, -20px);
+        }
+
+        #yt-player-wrapper {
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #video-dock:hover #yt-player-wrapper {
+            pointer-events: auto;
+        }
+
+        /* === START SCREEN === */
+        #start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        #start-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border-radius: 50px;
+            font-weight: bold;
+            border: none;
+        }
+    </style>
 </head>
+
 <body>
-    <p>If you are not redirected automatically, follow this <a href="22DecTry.html">link to 22DecTry.html</a>.</p>
+
+    <!-- === START SCREEN === -->
+    <div id="start-screen">
+        <h1>Munir's Music Gallery (Unified)</h1>
+        <p style="color: #888; margin-bottom: 20px;">Walk through the music. Explore the galaxy.</p>
+        <button id="start-btn">ENTER THE GALLERY</button>
+    </div>
+
+    <!-- === TOP BAR & CONTROLS === -->
+    <button id="info-toggle"
+        style="position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 16px; border-radius: 20px; cursor: pointer; backdrop-filter: blur(5px); z-index: 10; pointer-events: auto;">ℹ️
+        Guide</button>
+    <button id="btn-admin-toggle" class="btn" style="position: absolute; top: 20px; right: 20px; z-index: 10;">⚙️ Manage
+        Data</button>
+
+    <div id="info-panel"
+        style="position: absolute; top: 70px; left: 20px; background: rgba(10,10,10,0.85); border: 1px solid rgba(255,255,255,0.15); padding: 15px 20px; border-radius: 8px; width: 280px; backdrop-filter: blur(10px); z-index: 15; display: none; pointer-events: auto;">
+        <h3 style="margin: 0 0 10px 0; font-size: 1em;">How to Explore</h3>
+        <p style="margin: 8px 0; font-size: 0.9em; color: #ccc;"><strong>Move:</strong> Use WASD, drag the canvas, or
+            swipe on touch</p>
+        <p style="margin: 8px 0; font-size: 0.9em; color: #ccc;"><strong>Zoom:</strong> Use scroll wheel or pinch on
+            touch</p>
+        <p style="margin: 8px 0; font-size: 0.9em; color: #ccc;"><strong>Discover:</strong> Walk into color fields to
+            find songs</p>
+        <p style="margin: 8px 0; font-size: 0.9em; color: #ccc;"><strong>Journey:</strong> Use the buttons below to take
+            a guided tour</p>
+    </div>
+
+    <script>
+        document.getElementById('info-toggle').addEventListener('click', () => {
+            const panel = document.getElementById('info-panel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        });
+    </script>
+
+    <!-- === JOURNEY PANEL === -->
+    <div id="journey-panel">
+        <button class="journey-btn" onclick="startRandomJourney()">🎲 Guide Me Somewhere</button>
+        <button class="journey-btn" onclick="startNeighborhoodJourney()">🏘️ Explore Neighborhood</button>
+        <button id="auto-btn" class="journey-btn" onclick="toggleAutopilot()">▶ Start Tour</button>
+        <button id="skip-btn" class="journey-btn" onclick="forceNextSong()">⏭ Skip to Next</button>
+        <button class="journey-btn" onclick="clearTrace()">🧹 Erase Trace</button>
+        <button class="journey-btn" onclick="clearGuide()" id="clear-guide-btn"
+            style="display:none; border-color: #ff4444; color: #ff8888;">❌ Stop Guide</button>
+    </div>
+
+    <!-- === ADMIN PANEL (From index.html) === -->
+    <div id="admin-panel" class="pointer-events-auto">
+        <div
+            style="padding: 20px; border-bottom: 1px solid #30363d; display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="margin:0; color: white;">Library Manager</h3>
+            <button id="btn-admin-close" class="btn" style="padding:5px 10px;">✕</button>
+        </div>
+
+        <div class="admin-content">
+            <!-- STEP 1: CAPTURE -->
+            <div class="admin-section">
+                <span class="admin-label">1. Capture Music</span>
+                <p style="font-size: 0.85em; color: #8b949e; margin-bottom: 10px;">
+                    Drag this button to your bookmarks bar. Click it when viewing any YouTube playlist.
+                </p>
+                <a href="javascript:(function(){const s=document.createElement('script');s.src='https://munirpaviwala.github.io/musicProject/datascrapper.js?v='+Date.now();document.body.appendChild(s);})();"
+                    class="bookmarklet-btn" onclick="return false;">
+                    🎵 Scrape Playlist
+                </a>
+            </div>
+
+            <!-- STEP 2: IMPORT -->
+            <div class="admin-section">
+                <span class="admin-label">2. Import Data</span>
+                <textarea id="import-box" class="code-box"
+                    placeholder="Paste the JSON from the scraper here..."></textarea>
+                <button id="btn-import" class="btn btn-primary" style="width:100%; margin-top:10px;">⬇ Import &
+                    Merge</button>
+            </div>
+
+            <!-- STEP 3: ORGANIZE -->
+            <div class="admin-section">
+                <span class="admin-label">3. Organize</span>
+                <p style="font-size: 0.85em; color: #8b949e; margin-bottom: 10px;">
+                    Re-calculates the entire map. Largest playlists go to center.
+                </p>
+                <button id="btn-recluster" class="btn" style="width:100%; background: #238636; border-color: #2ea043;">
+                    ⚡ Regenerate Layout
+                </button>
+            </div>
+
+            <!-- STEP 4: SAVE -->
+            <div class="admin-section">
+                <span class="admin-label">4. Save Changes</span>
+                <button id="btn-export" class="btn" style="width:100%;">📋 Copy 'data.json'</button>
+                <p style="font-size: 0.8em; color: #8b949e; margin-top: 8px;">
+                    Copy this and overwrite your local <code>data.json</code> file on GitHub to save permanently.
+                </p>
+                <textarea id="export-box" class="code-box" readonly style="height: 40px; opacity: 0.5;"></textarea>
+            </div>
+
+            <div class="admin-section" style="border-top: 1px solid #30363d; padding-top: 20px;">
+                <button id="btn-clear-local" class="btn btn-danger" style="width:100%; font-size:0.8em;">⚠️ Reset Local
+                    Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- === PLAYER UI === -->
+    <div id="now-playing">
+        <div id="np-title">Song Title</div>
+        <div id="np-status" style="font-size: 0.8em; color: cyan; margin-bottom: 5px; display:none;">AUTOPILOT:
+            LISTENING...</div>
+        <div id="np-note" style="color:#aaa; font-style:italic; font-size:0.9em;"></div>
+    </div>
+
+    <div id="video-dock">
+        <div id="yt-player-wrapper"></div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <script>
+        // ==========================================
+        // 1. CONFIG & UTILS (From index.html)
+        // ==========================================
+        const SEED = "MunirMusicGalaxy";
+        const COLORS = [
+            "#FF1744", "#F50057", "#D500F9", "#651FFF", "#2979F3", "#00B0FF",
+            "#00E5FF", "#1DE9B6", "#00E676", "#76FF03", "#FFEA00", "#FFC400",
+            "#FF9100", "#FF3D00", "#FF5252", "#FF80AB", "#E040FB", "#536DFE"
+        ];
+
+        // Seeded Random Utils
+        let _seed = 1;
+        function hashStr(str) {
+            let h = 0x811c9dc5;
+            for (let i = 0; i < str.length; i++) {
+                h ^= str.charCodeAt(i);
+                h = Math.imul(h, 0x01000193);
+            }
+            return h >>> 0;
+        }
+        function seedRandom(s) { _seed = hashStr(s); }
+        function rand() {
+            _seed = (_seed * 1664525 + 1013904223) % 4294967296;
+            return _seed / 4294967296;
+        }
+
+        // ==========================================
+        // 2. APP STATE
+        // ==========================================
+        let appState = {
+            playlists: [],
+            songs: [],
+            anchors: [],
+        };
+
+        // Rendering State (From 22DecTry)
+        let player = { x: 0, y: 0, size: 8 };
+        let camera = { zoom: 1, targetZoom: 1 };
+        let keys = {};
+        let mouse = { x: 0, y: 0, dragging: false };
+        let pathHistory = [];
+        let guidePath = null;
+        let guideTarget = null;
+        let isAutopilot = false;
+        let autopilotState = "IDLE";
+        let autopilotIndex = 1;
+
+        // ==========================================
+        // 3. CLUSTERING ENGINE (From index.html)
+        // ==========================================
+        function runClusterSimulation() {
+            console.log("⚡ Running Optimization: Wide & Donut Clustering...");
+            seedRandom(SEED);
+
+            let playlists = appState.playlists;
+            // Sort: Largest playlists first (Center-out galaxy strategy)
+            let sortedIndices = playlists.map((p, i) => ({ i, count: p.songCount }))
+                .sort((a, b) => b.count - a.count)
+                .map(o => o.i);
+
+            // 2. Calculate ideal radii (INCREASED SIZES)
+            // Base radius 220 px
+            let radii = playlists.map(p => 220 + (p.songCount / 50) * 450);
+
+            let placed = [];
+            let anchors = [];
+            let pPositions = new Array(playlists.length).fill(null);
+
+            sortedIndices.forEach((originalIndex, sortOrder) => {
+                let p = playlists[originalIndex];
+                let radius = radii[originalIndex];
+                let x = 0, y = 0, found = false;
+
+                if (sortOrder === 0) {
+                    x = 0; y = 0; found = true;
+                } else {
+                    let attempt = 0;
+                    let ringStart = 600; // Start searching further out (was 400)
+                    while (!found && attempt < 2000) {
+                        attempt++;
+                        let searchDist = ringStart + (attempt * 5); // Expand faster
+                        let angle = rand() * Math.PI * 2;
+                        let tx = Math.cos(angle) * searchDist;
+                        let ty = Math.sin(angle) * searchDist;
+
+                        let overlaps = placed.some(exist => {
+                            let dist = Math.hypot(tx - exist.x, ty - exist.y);
+                            // HUGE PADDING: radius + exist.radius + 400px gap
+                            return dist < (radius + exist.radius + 400);
+                        });
+
+                        if (!overlaps) {
+                            x = tx; y = ty; found = true;
+                        }
+                    }
+                }
+                placed.push({ x, y, radius });
+
+                let color = COLORS[originalIndex % COLORS.length];
+                pPositions[originalIndex] = { x, y, radius };
+
+                anchors.push({
+                    id: p.id, name: p.name, x: Math.round(x), y: Math.round(y),
+                    color: color, radius: Math.round(radius)
+                });
+            });
+
+            // Place Songs
+            appState.songs = []; // Rebuild flattened list
+            playlists.forEach((p, idx) => {
+                let center = pPositions[idx];
+                if (!center) return;
+                let songs = p.songs || [];
+                let placedSongs = [];
+
+                songs.forEach((song, sIdx) => {
+                    let sx = center.x, sy = center.y;
+                    let placedS = false;
+
+                    // DONUT LOGIC: Minimum distance from center
+                    let minR = 120; // 120px hole in center for label clarity
+                    let maxR = center.radius * 1.1; // Allow slightly wider distribution
+
+                    // Attempt random placement in donut
+                    let sAttempt = 0;
+                    while (!placedS && sAttempt < 300) {
+                        sAttempt++;
+                        let r = minR + Math.sqrt(rand()) * (maxR - minR);
+                        let th = rand() * Math.PI * 2;
+                        let tx = center.x + Math.cos(th) * r;
+                        let ty = center.y + Math.sin(th) * r;
+                        let claps = placedSongs.some(ps => Math.hypot(tx - ps.x, ty - ps.y) < 85);
+                        if (!claps) { sx = tx; sy = ty; placedS = true; }
+                    }
+
+                    // SPIRAL FALLBACK (Aggressive)
+                    // If random fails, spiral OUT from the existing cloud until we find a spot.
+                    if (!placedS) {
+                        let spiralAngle = 0;
+                        let spiralDist = minR; // Start at donut inner edge
+                        let spiralLimit = 0;
+
+                        // Keep spiraling until spot found (Safety 5000: huge limit)
+                        while (!placedS && spiralLimit < 5000) {
+                            spiralLimit++;
+                            spiralAngle += 0.3; // Tighter spiral for density
+                            spiralDist += 2;    // Slow expansion
+
+                            let tx = center.x + Math.cos(spiralAngle) * spiralDist;
+                            let ty = center.y + Math.sin(spiralAngle) * spiralDist;
+
+                            let claps = placedSongs.some(ps => Math.hypot(tx - ps.x, ty - ps.y) < 85);
+                            if (!claps) {
+                                sx = tx; sy = ty; placedS = true;
+                                // If we pushed the boundary, expand the anchor visual
+                                if (spiralDist > center.radius) center.radius = spiralDist;
+                            }
+                        }
+                    }
+
+                    // Critical Fix: If still failed (monitor size?), fallback to a random far spot instead of (0,0)
+                    if (!placedS) {
+                        let emergencyAngle = rand() * Math.PI * 2;
+                        let emergencyDist = center.radius + 200;
+                        sx = center.x + Math.cos(emergencyAngle) * emergencyDist;
+                        sy = center.y + Math.sin(emergencyAngle) * emergencyDist;
+                        // Just force it there, ignore overlaps to prevent stack overflow
+                    }
+
+                    // Enrich song object for renderer
+                    song.x = Math.round(sx);
+                    song.y = Math.round(sy);
+                    song.offset = Math.round(rand() * 100);
+                    song.color = anchors.find(a => a.id === p.id).color;
+
+                    placedSongs.push({ x: sx, y: sy });
+                    appState.songs.push(song);
+                });
+
+                // Refine Anchor Radius to match actaul spread
+                let maxDist = 0;
+                placedSongs.forEach(ps => {
+                    let d = Math.hypot(ps.x - center.x, ps.y - center.y);
+                    if (d > maxDist) maxDist = d;
+                });
+                let a = anchors.find(a => a.id === p.id);
+                if (a) a.radius = Math.round(maxDist + 150);
+            });
+
+            appState.anchors = anchors;
+            console.log(`✅ Optimized Clustering: ${appState.songs.length} songs distributed widely.`);
+            saveToLocalStorage();
+        }
+
+        // ==========================================
+        // 4. DATA MANAGEMENT (From index.html)
+        // ==========================================
+        function loadData() {
+            let local = localStorage.getItem('munir_music_data');
+            if (local) {
+                try {
+                    console.log("Loaded from LocalStorage");
+                    parseData(JSON.parse(local));
+                    return;
+                } catch (e) { console.error("Local data corrupt", e); }
+            }
+            fetch('data.json').then(r => r.json()).then(data => {
+                console.log("Loaded from data.json");
+                parseData(data);
+            }).catch(e => console.warn("No data loaded. Starting fresh."));
+        }
+
+        function parseData(data) {
+            if (data.playlists) {
+                appState.playlists = data.playlists;
+                if (data.anchors) {
+                    appState.anchors = data.anchors;
+                    // Flatten songs if anchors exist (assume already clustered)
+                    appState.songs = [];
+                    appState.playlists.forEach(p => { if (p.songs) appState.songs.push(...p.songs); });
+                } else {
+                    // New data, needs clustering
+                    runClusterSimulation();
+                }
+            }
+            if (appState.songs.length === 0) {
+                alert("No music found! Use the Manage panel to import seeded data.");
+                document.getElementById('admin-panel').classList.add('open');
+            }
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('munir_music_data', JSON.stringify({
+                playlists: appState.playlists,
+                anchors: appState.anchors
+            }));
+        }
+
+        // === ADMIN UI HANDLERS ===
+        document.getElementById('btn-admin-toggle').onclick = () => document.getElementById('admin-panel').classList.toggle('open');
+        document.getElementById('btn-admin-close').onclick = () => document.getElementById('admin-panel').classList.remove('open');
+
+        let reclusterTimeout;
+        document.getElementById('btn-recluster').onclick = function () {
+            const btn = this;
+            if (btn.classList.contains('confirming')) {
+                // Confirmed!
+                clearTimeout(reclusterTimeout);
+                btn.innerText = "⚡ Regenerate Layout";
+                btn.classList.remove('confirming');
+                btn.style.background = "#238636"; // Reset color
+                runClusterSimulation();
+            } else {
+                // First Click: Ask for confirmation
+                btn.classList.add('confirming');
+                btn.innerText = "⚠️ Click again to confirm";
+                btn.style.background = "#d29922"; // Orange warning
+
+                reclusterTimeout = setTimeout(() => {
+                    btn.classList.remove('confirming');
+                    btn.innerText = "⚡ Regenerate Layout";
+                    btn.style.background = "#238636";
+                }, 3000); // Reset after 3 seconds
+            }
+        }
+        let importTimeout;
+        document.getElementById('btn-import').onclick = function () {
+            const btn = this;
+            try {
+                let raw = document.getElementById('import-box').value;
+                if (!raw) throw "Empty";
+                let newSongs = JSON.parse(raw);
+                if (!Array.isArray(newSongs)) throw "Not Array";
+
+                let playlistId = "IMP_" + Date.now();
+                let playlistName = newSongs[0]?.note || "Imported Playlist";
+
+                let newPlaylist = {
+                    id: playlistId,
+                    name: playlistName,
+                    songCount: newSongs.length,
+                    songs: newSongs.map(s => ({ ...s, playlistSource: playlistName, status: 'active' }))
+                };
+
+                appState.playlists.push(newPlaylist);
+
+                // Success Feedback
+                btn.innerText = `✅ Added ${newSongs.length} songs!`;
+                btn.style.background = "#238636";
+                document.getElementById('import-box').value = "";
+                saveToLocalStorage();
+
+                // Reset text after 3s
+                clearTimeout(importTimeout);
+                importTimeout = setTimeout(() => {
+                    btn.innerText = "⬇ Import & Merge";
+                    btn.style.background = "#0088ff"; // Primary blue
+                }, 3000);
+
+            } catch (e) {
+                // Error Feedback
+                const originalText = btn.innerText;
+                const originalColor = btn.style.background;
+                btn.innerText = "❌ Invalid JSON";
+                btn.style.background = "#d2222d"; // Red
+
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = ""; // Reset to CSS default
+                }, 2000);
+            }
+        }
+
+        document.getElementById('btn-export').onclick = () => {
+            let exportData = { playlists: appState.playlists, anchors: appState.anchors };
+            let str = JSON.stringify(exportData, null, 2);
+            let box = document.getElementById('export-box');
+            box.value = str; box.select(); document.execCommand('copy');
+            alert("Copied to clipboard!");
+        }
+
+        let clearTimeoutHandle;
+        document.getElementById('btn-clear-local').onclick = function () {
+            const btn = this;
+            if (btn.classList.contains('confirming')) {
+                // Confirmed
+                localStorage.removeItem('munir_music_data');
+                location.reload();
+            } else {
+                // First Click
+                btn.classList.add('confirming');
+                btn.innerText = "⚠️ Really Reset? Click again.";
+
+                clearTimeoutHandle = setTimeout(() => {
+                    btn.classList.remove('confirming');
+                    btn.innerText = "⚠️ Reset Local Changes";
+                }, 3000);
+            }
+        }
+
+        // ==========================================
+        // 5. JOURNEY & PATHFINDING (From 22DecTry)
+        // ==========================================
+        function startRandomJourney() {
+            let songs = appState.songs;
+            if (songs.length < 2) return alert("Need more songs!");
+            let farSongs = songs.filter(s => Math.sqrt((s.x - player.x) ** 2 + (s.y - player.y) ** 2) > 400 && s.status !== 'error');
+            let target = farSongs.length > 0 ? farSongs[Math.floor(Math.random() * farSongs.length)] : songs[Math.floor(Math.random() * songs.length)];
+            guideTarget = target;
+
+            let waypoints = [];
+            let vectorX = target.x - player.x;
+            let vectorY = target.y - player.y;
+            let totalDist = Math.sqrt(vectorX * vectorX + vectorY * vectorY);
+
+            songs.forEach(s => {
+                if (s === target || s.status === 'error') return;
+                let sx = s.x - player.x;
+                let sy = s.y - player.y;
+                let dot = (sx * vectorX + sy * vectorY) / (totalDist * totalDist);
+                if (dot > 0.1 && dot < 0.9) {
+                    let projX = player.x + dot * vectorX;
+                    let projY = player.y + dot * vectorY;
+                    if (Math.sqrt((s.x - projX) ** 2 + (s.y - projY) ** 2) < 200) waypoints.push(s);
+                }
+            });
+            waypoints.sort((a, b) => ((a.x - player.x) ** 2 + (a.y - player.y) ** 2) - ((b.x - player.x) ** 2 + (b.y - player.y) ** 2));
+
+            if (waypoints.length > 22) {
+                let sampled = [];
+                for (let i = 0; i < 22; i++) sampled.push(waypoints[Math.floor(i * waypoints.length / 22)]);
+                waypoints = sampled;
+            }
+
+            guidePath = [];
+            guidePath.push({ x: player.x, y: player.y });
+            waypoints.forEach(wp => guidePath.push({ x: wp.x, y: wp.y }));
+            guidePath.push({ x: target.x, y: target.y });
+
+            startJourneyUI();
+        }
+
+        function startNeighborhoodJourney() {
+            let songs = appState.songs;
+            let startSong;
+            let nearbySongs = songs.filter(s => Math.sqrt((s.x - player.x) ** 2 + (s.y - player.y) ** 2) < 600 && s.status !== 'error');
+
+            if (nearbySongs.length > 0) {
+                startSong = nearbySongs[0];
+            } else {
+                startSong = songs.filter(s => s.status !== 'error')[Math.floor(Math.random() * songs.length)];
+                player.x = startSong.x; player.y = startSong.y;
+            }
+
+            let visited = new Set();
+            let spiral = [];
+            spiral.push({ x: startSong.x, y: startSong.y });
+            visited.add(startSong);
+
+            let maxRingDistance = 500;
+            let ringWidth = 80;
+
+            for (let ringDist = ringWidth; ringDist < maxRingDistance; ringDist += ringWidth) {
+                let ringSongs = songs.filter(s => {
+                    let dist = Math.sqrt((s.x - startSong.x) ** 2 + (s.y - startSong.y) ** 2);
+                    return dist >= (ringDist - ringWidth / 2) && dist <= (ringDist + ringWidth / 2) && s.status !== 'error' && !visited.has(s);
+                });
+                if (ringSongs.length === 0) continue;
+                ringSongs.sort((a, b) => Math.atan2(a.y - startSong.y, a.x - startSong.x) - Math.atan2(b.y - startSong.y, b.x - startSong.x));
+                ringSongs.forEach(song => { spiral.push({ x: song.x, y: song.y }); visited.add(song); });
+            }
+
+            if (spiral.length < 2) return alert("Not enough songs nearby!");
+
+            guidePath = spiral;
+            guidePath.push({ x: startSong.x, y: startSong.y });
+            startJourneyUI();
+        }
+
+        function startJourneyUI() {
+            guideTarget = null;
+            document.getElementById('clear-guide-btn').style.display = 'flex';
+            document.getElementById('auto-btn').style.display = 'flex';
+            document.getElementById('auto-btn').innerText = "⏸ Pause Tour";
+
+            if (currentSongId) {
+                isAutopilot = true; autopilotIndex = 1; autopilotState = "LISTENING";
+                document.getElementById('np-status').style.display = "block";
+                document.getElementById('np-status').innerText = "TOUR QUEUED: Waiting for current song...";
+                document.getElementById('skip-btn').style.display = 'none';
+            } else {
+                isAutopilot = true; autopilotIndex = 1; autopilotState = "MOVING";
+                document.getElementById('skip-btn').style.display = 'flex';
+                document.getElementById('np-status').style.display = "block";
+                document.getElementById('np-status').innerText = "AUTOPILOT: MOVING...";
+            }
+            camera.targetZoom = 0.7;
+        }
+
+        function toggleAutopilot() {
+            if (!guidePath) return;
+            isAutopilot = !isAutopilot;
+            document.getElementById('auto-btn').innerText = isAutopilot ? "⏸ Pause Tour" : "▶ Start Tour";
+            if (isAutopilot) {
+                if (currentSongId) {
+                    autopilotState = "LISTENING";
+                    document.getElementById('np-status').style.display = "block";
+                    document.getElementById('np-status').innerText = "AUTOPILOT: LISTENING...";
+                    document.getElementById('skip-btn').style.display = 'flex';
+                } else { autopilotState = "MOVING"; }
+                camera.targetZoom = 0.8;
+            } else {
+                document.getElementById('skip-btn').style.display = 'none';
+                document.getElementById('np-status').style.display = 'none';
+            }
+        }
+
+        function forceNextSong() {
+            if (!isAutopilot) return;
+            stopSong(); currentSongId = null; autopilotIndex++;
+            if (autopilotIndex >= guidePath.length) { clearGuide(); }
+            else {
+                autopilotState = "MOVING";
+                document.getElementById('skip-btn').style.display = 'flex';
+                document.getElementById('np-status').innerText = "MOVING TO NEXT STOP...";
+            }
+        }
+
+        function clearGuide() {
+            guidePath = null; guideTarget = null; isAutopilot = false;
+            document.getElementById('clear-guide-btn').style.display = 'none';
+            document.getElementById('auto-btn').style.display = 'none';
+            document.getElementById('skip-btn').style.display = 'none';
+            document.getElementById('auto-btn').innerText = "▶ Start Tour";
+            document.getElementById('np-status').style.display = 'none';
+        }
+        function clearTrace() { pathHistory = []; }
+
+        // ==========================================
+        // 6. RENDERER (From 22DecTry)
+        // ==========================================
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const fogCanvas = document.createElement('canvas');
+        const fogCtx = fogCanvas.getContext('2d');
+
+        window.addEventListener('resize', resize);
+        function resize() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            fogCanvas.width = 4000; fogCanvas.height = 4000;
+            fogCtx.fillStyle = "rgba(0, 0, 0, 0.40)"; fogCtx.fillRect(0, 0, 4000, 4000);
+            fogCtx.globalCompositeOperation = "destination-out";
+            fogCtx.beginPath(); fogCtx.arc(2000, 2000, 300, 0, Math.PI * 2); fogCtx.fill();
+            fogCtx.globalCompositeOperation = "source-over";
+        }
+        resize();
+
+        let time = 0;
+        function draw() {
+            time += 0.04;
+
+            // Autopilot Logic in Render Loop
+            if (isAutopilot && guidePath && autopilotIndex < guidePath.length && autopilotState === "MOVING") {
+                let target = guidePath[autopilotIndex];
+                let dx = target.x - player.x; let dy = target.y - player.y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+
+                let isTargetSong = appState.songs.find(s => Math.abs(s.x - target.x) < 1 && Math.abs(s.y - target.y) < 1);
+                if (dist < 10) {
+                    if (isTargetSong) {
+                        if (isTargetSong.status === 'error') {
+                            autopilotIndex++;
+                        } else {
+                            autopilotState = "LISTENING";
+                            document.getElementById('np-status').style.display = "block";
+                            document.getElementById('np-status').innerText = "AUTOPILOT: LISTENING...";
+                            document.getElementById('skip-btn').style.display = 'flex';
+                        }
+                    } else {
+                        autopilotIndex++;
+                        if (autopilotIndex >= guidePath.length) clearGuide();
+                    }
+                } else {
+                    let moveSpeed = 4.0 / camera.zoom;
+                    player.x += (dx / dist) * moveSpeed; player.y += (dy / dist) * moveSpeed;
+                }
+            } else if (!isAutopilot) {
+                if (keys['w']) player.y -= 6 / camera.zoom; if (keys['s']) player.y += 6 / camera.zoom;
+                if (keys['a']) player.x -= 6 / camera.zoom; if (keys['d']) player.x += 6 / camera.zoom;
+            }
+
+            camera.zoom += (camera.targetZoom - camera.zoom) * 0.1;
+            if (pathHistory.length === 0 || Math.abs(player.x - pathHistory[pathHistory.length - 1].x) > 10 || Math.abs(player.y - pathHistory[pathHistory.length - 1].y) > 10) {
+                pathHistory.push({ x: player.x, y: player.y });
+            }
+
+            // Canvas Clear & Setup
+            ctx.fillStyle = "#000"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.save(); ctx.translate(canvas.width / 2, canvas.height / 2); ctx.scale(camera.zoom, camera.zoom); ctx.translate(-player.x, -player.y);
+
+            // Draw Anchors (Galaxy centers)
+            ctx.globalCompositeOperation = "lighter";
+            appState.anchors.forEach(a => {
+                let grad = ctx.createRadialGradient(a.x, a.y, 0, a.x, a.y, a.radius);
+                grad.addColorStop(0, a.color); grad.addColorStop(1, "rgba(0,0,0,0)");
+                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(a.x, a.y, a.radius, 0, Math.PI * 2); ctx.fill();
+            });
+            ctx.globalCompositeOperation = "source-over";
+
+            // Trace
+            if (pathHistory.length > 1) {
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.15)"; ctx.lineWidth = 2; ctx.beginPath();
+                ctx.moveTo(pathHistory[0].x, pathHistory[0].y);
+                for (let i = 1; i < pathHistory.length; i++) ctx.lineTo(pathHistory[i].x, pathHistory[i].y);
+                ctx.stroke();
+            }
+
+            // Guide Line
+            if (guidePath && guidePath.length > 1) {
+                ctx.strokeStyle = isAutopilot ? "rgba(0, 255, 255, 0.8)" : "rgba(0, 255, 255, 0.4)";
+                ctx.lineWidth = 3; ctx.setLineDash([15, 10]); ctx.beginPath();
+                let startIdx = autopilotIndex > 0 ? autopilotIndex - 1 : 0;
+                ctx.moveTo(player.x, player.y);
+                for (let i = autopilotIndex; i < guidePath.length; i++) ctx.lineTo(guidePath[i].x, guidePath[i].y);
+                ctx.stroke(); ctx.setLineDash([]);
+
+                for (let i = autopilotIndex; i < guidePath.length; i++) {
+                    let pt = guidePath[i];
+                    if (appState.songs.some(s => Math.abs(s.x - pt.x) < 1 && Math.abs(s.y - pt.y) < 1)) {
+                        ctx.fillStyle = "cyan"; ctx.beginPath(); ctx.arc(pt.x, pt.y, 6, 0, Math.PI * 2); ctx.fill();
+                    }
+                }
+            }
+
+            // Draw Songs
+            let touching = false;
+            let viewW = canvas.width / camera.zoom;
+            let viewH = canvas.height / camera.zoom;
+
+            appState.songs.forEach(s => {
+                // Culling
+                if (Math.abs(s.x - player.x) > viewW && Math.abs(s.y - player.y) > viewH) return;
+
+                let floatY = s.y + Math.sin(time + s.offset) * 6;
+                let dist = Math.sqrt((player.x - s.x) ** 2 + (player.y - floatY) ** 2);
+                let isTouching = dist < (35 + player.size);
+                let r = isTouching ? 50 : 35;
+
+                // Styles
+                if (s.status === 'error') { ctx.strokeStyle = "#ff0000"; ctx.lineWidth = 2; }
+                else if (guidePath && guidePath.some(pt => Math.abs(pt.x - s.x) < 1 && Math.abs(pt.y - s.y) < 1)) { ctx.strokeStyle = "cyan"; ctx.lineWidth = 3; }
+                else { ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.lineWidth = 1.5; }
+
+                ctx.beginPath(); ctx.arc(s.x, floatY, r, 0, Math.PI * 2);
+                if (isTouching) {
+                    touching = true;
+                    ctx.shadowBlur = 30; ctx.shadowColor = s.status === 'error' ? "red" : "white";
+                    ctx.fillStyle = s.status === 'error' ? "#330000" : "white"; ctx.fill(); ctx.shadowBlur = 0;
+                    if (currentSongId !== s.ytId) { playSong(s); currentSongId = s.ytId; }
+                } else { ctx.fillStyle = "rgba(255,255,255,0.05)"; ctx.fill(); ctx.stroke(); }
+
+                // Text
+                if (camera.zoom > 0.5) {
+                    ctx.fillStyle = isTouching ? (s.status === 'error' ? "red" : "black") : "rgba(255,255,255,0.7)";
+                    ctx.font = isTouching ? "bold 12px Arial" : "11px Arial";
+                    ctx.textAlign = "center"; ctx.fillText(s.title, s.x, floatY + r + 15);
+                }
+            });
+
+            if (!touching && currentSongId && !isAutopilot) { stopSong(); currentSongId = null; }
+
+            // Player & Fog
+            ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2); ctx.fill();
+            ctx.save(); ctx.globalCompositeOperation = "source-over"; ctx.drawImage(fogCanvas, -2000, -2000); ctx.restore();
+            ctx.restore();
+        }
+
+        // 7. INPUT HANDLERS
+        window.addEventListener('keydown', e => {
+            keys[e.key.toLowerCase()] = true;
+            if (isAutopilot && (e.key === 'w' || e.key === 'a' || e.key === 's' || e.key === 'd')) toggleAutopilot();
+        });
+        window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+        window.addEventListener('wheel', e => { e.preventDefault(); camera.targetZoom = Math.max(0.2, Math.min(3.0, camera.targetZoom - e.deltaY * 0.001)); }, { passive: false });
+
+        function toWorld(sx, sy) { const cx = canvas.width / 2; const cy = canvas.height / 2; return { x: (sx - cx) / camera.zoom + player.x, y: (sy - cy) / camera.zoom + player.y }; }
+
+        function handlePointerDown(x, y) {
+            mouse.dragging = true; mouse.x = x; mouse.y = y;
+            if (isAutopilot) toggleAutopilot();
+        }
+        function handlePointerMove(x, y) {
+            const dx = x - mouse.x; const dy = y - mouse.y; mouse.x = x; mouse.y = y;
+            if (mouse.dragging) { player.x -= dx / camera.zoom; player.y -= dy / camera.zoom; }
+        }
+        function handlePointerUp() { mouse.dragging = false; }
+
+        canvas.addEventListener('mousedown', e => handlePointerDown(e.clientX, e.clientY));
+        window.addEventListener('mouseup', handlePointerUp);
+        canvas.addEventListener('mousemove', e => handlePointerMove(e.clientX, e.clientY));
+
+        // Touch
+        canvas.addEventListener('touchstart', e => {
+            e.preventDefault();
+            if (e.touches.length > 0) handlePointerDown(e.touches[0].clientX, e.touches[0].clientY);
+            if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                mouse.pinchDistance = Math.sqrt(dx * dx + dy * dy);
+            }
+        }, { passive: false });
+
+        window.addEventListener('touchend', e => {
+            handlePointerUp();
+            mouse.pinchDistance = null;
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', e => {
+            e.preventDefault();
+            if (e.touches.length === 2 && mouse.pinchDistance !== null) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                const newPinchDistance = Math.sqrt(dx * dx + dy * dy);
+                camera.targetZoom = Math.max(0.2, Math.min(3.0, camera.targetZoom * (newPinchDistance / mouse.pinchDistance)));
+                mouse.pinchDistance = newPinchDistance;
+            } else if (e.touches.length === 1) {
+                handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: false });
+
+
+        // ==========================================
+        // 8. PLAYER & INIT
+        // ==========================================
+        let playerInstance = null;
+        let currentSongId = null;
+
+        function onYouTubeIframeAPIReady() {
+            playerInstance = new YT.Player('yt-player-wrapper', {
+                height: '100%',
+                width: '100%',
+                videoId: '',
+                host: 'https://www.youtube.com', // Force SSL
+                playerVars: {
+                    'playsinline': 1,
+                    'controls': 1,
+                    'disablekb': 1,
+                    'origin': window.location.origin, // Critical for localhost
+                    'rel': 0
+                },
+                events: { 'onStateChange': onPlayerStateChange, 'onError': onPlayerError }
+            });
+        }
+        function onPlayerStateChange(event) {
+            if (event.data === 0 && isAutopilot && autopilotState === "LISTENING") forceNextSong();
+        }
+        function onPlayerError(event) {
+            console.warn("Song Unavailable. Code:", event.data);
+            let song = appState.songs.find(s => s.ytId === currentSongId);
+            if (song) {
+                song.status = 'error';
+                document.getElementById('np-title').innerText = "SONG UNAVAILABLE";
+                document.getElementById('np-note').innerText = "Skipping automatically...";
+            }
+            if (isAutopilot) setTimeout(() => forceNextSong(), 1500);
+        }
+
+        function playSong(song) {
+            if (!playerInstance || !playerInstance.loadVideoById) return;
+            if (song.status === 'error') return;
+            document.getElementById('video-dock').style.display = "block";
+            playerInstance.loadVideoById(song.ytId);
+            document.getElementById('np-title').innerText = song.title;
+            document.getElementById('np-note').innerText = song.note || "";
+            document.getElementById('now-playing').style.display = "block";
+        }
+
+        function stopSong() {
+            if (playerInstance && playerInstance.stopVideo) playerInstance.stopVideo();
+            document.getElementById('video-dock').style.display = "none";
+            document.getElementById('now-playing').style.display = "none";
+        }
+
+        document.getElementById('start-btn').addEventListener('click', () => {
+            document.getElementById('start-screen').style.opacity = '0';
+            setTimeout(() => document.getElementById('start-screen').style.display = 'none', 500);
+            // Init audio (requires gesture)
+            if (playerInstance) playerInstance.playVideo();
+            setTimeout(() => { if (playerInstance) playerInstance.stopVideo(); }, 100);
+            loadData(); // LOAD DATA ONLY AFTER ENTRY
+        });
+
+        // START LOOP
+        setInterval(draw, 16);
+
+    </script>
 </body>
+
 </html>
