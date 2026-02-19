@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>Munir's Music Gallery (Unified)</title>
+    <title>Munir's Music Gallery</title>
     <style>
         /* === RESET & BASE (From 22DecTry) === */
         body {
@@ -267,41 +267,267 @@
             border: none;
         }
     </style>
+    <!-- === GOOGLE FONTS (Retro) === -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        /* ... existing styles ... */
+
+        /* === GAMIFIED INTRO CSS === */
+        #intro-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a0b2e 0%, #000000 100%);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        #intro-scene {
+            width: 80%;
+            max-width: 800px;
+            height: 70%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        /* Professor/Guide Character */
+        #guide-char {
+            width: 250px;
+            height: 250px;
+            background-repeat: no-repeat;
+            background-position: center bottom;
+            background-size: contain;
+            image-rendering: pixelated;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 10px white);
+        }
+
+        /* Dialogue Box */
+        #dialogue-box {
+            width: 100%;
+            background: #fff;
+            border: 4px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 8px 8px 0 #222;
+            position: relative;
+            min-height: 150px;
+        }
+
+        #dialogue-text {
+            color: #000;
+            font-size: 14px;
+            line-height: 1.8;
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        #next-arrow {
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid #f00;
+            animation: bounce 0.8s infinite;
+            cursor: pointer;
+            display: none;
+        }
+
+        @keyframes bounce {
+            0% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(5px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        /* Skip Button */
+        #skip-btn-intro {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: transparent;
+            color: #666;
+            border: none;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        #skip-btn-intro:hover {
+            color: #fff;
+        }
+
+        /* Actions Container */
+        #intro-actions {
+            margin-top: 15px;
+            display: none;
+            gap: 10px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .action-btn {
+            background: #238636;
+            color: white;
+            border: 2px solid #000;
+            padding: 10px 15px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 #000;
+        }
+
+        .action-btn:hover {
+            transform: translateY(2px);
+            box-shadow: 2px 2px 0 #000;
+        }
+
+        .action-btn.secondary {
+            background: #0088ff;
+        }
+
+        #avatar-upload {
+            display: none;
+        }
+
+        /* CREDITS MODAL */
+        #credits-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2500;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #credits-box {
+            width: 80%;
+            max-width: 600px;
+            background: #fff;
+            border: 4px solid #333;
+            box-shadow: 8px 8px 0 #222;
+            padding: 20px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #credits-content {
+            flex: 1;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            /* Monospace for alignment */
+            font-size: 12px;
+            white-space: pre-wrap;
+            color: #000;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            /* Inner border */
+            padding: 10px;
+        }
+
+        #credits-close-btn {
+            align-self: flex-end;
+            background: #ff4444;
+            color: white;
+            border: 2px solid #000;
+            padding: 10px 20px;
+            font-family: 'Press Start 2P', cursive;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 #000;
+        }
+
+        #credits-close-btn:hover {
+            transform: translateY(2px);
+            box-shadow: 2px 2px 0 #000;
+        }
+    </style>
 </head>
 
 <body>
 
-    <!-- === START SCREEN === -->
-    <div id="start-screen">
-        <h1>Munir's Music Gallery (Unified)</h1>
-        <p style="color: #888; margin-bottom: 20px;">Walk through the music. Explore the galaxy.</p>
-        <button id="start-btn">ENTER THE GALLERY</button>
+    <!-- === CREDITS MODAL === -->
+    <div id="credits-modal">
+        <div id="credits-box">
+            <h3 style="font-family: 'Press Start 2P'; margin-top: 0;">CREDITS</h3>
+            <div id="credits-content">Loading...</div>
+            <button id="credits-close-btn" onclick="closeCredits()">CLOSE</button>
+        </div>
     </div>
 
+    <!-- === GAMIFIED INTRO LAYER === -->
+    <div id="intro-layer">
+        <div id="intro-scene">
+            <div id="guide-char"></div>
+            <div id="dialogue-box">
+                <p id="dialogue-text"></p>
+                <div id="next-arrow" onclick="nextIntroStep()"></div>
+
+                <!-- Action Buttons (Hidden by default) -->
+                <div id="intro-actions">
+                    <button class="action-btn" id="act-btn-1">YES</button>
+                    <button class="action-btn secondary" id="act-btn-2">NO</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Right Credits -->
+        <button id="credits-btn-intro" onclick="showCredits()"
+            style="position: absolute; top: 20px; right: 20px; background: transparent; color: #666; border: none; font-family: 'Press Start 2P', cursive; font-size: 10px; cursor: pointer; z-index: 2001;">[CREDITS]</button>
+
+        <!-- Bottom Right Skip -->
+        <button id="skip-btn-intro" onclick="endIntro()"
+            style="position: absolute; bottom: 20px; right: 20px; background: transparent; color: #666; border: none; font-family: 'Press Start 2P', cursive; font-size: 10px; cursor: pointer;">[SKIP
+            INTRO]</button>
+    </div>
+
+    <!-- Hidden Avatar Input -->
+    <input type="file" id="avatar-upload" accept="image/*">
+
+    <!-- === MAIN CANVAS (Hidden initially) === -->
+    <canvas id="canvas"></canvas>
+
+    <!-- === TOP BAR & CONTROLS === -->
     <!-- === TOP BAR & CONTROLS === -->
     <button id="info-toggle"
         style="position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 16px; border-radius: 20px; cursor: pointer; backdrop-filter: blur(5px); z-index: 10; pointer-events: auto;">ℹ️
-        Guide</button>
+        Replay Intro</button>
+
     <button id="btn-admin-toggle" class="btn" style="position: absolute; top: 20px; right: 20px; z-index: 10;">⚙️ Manage
         Data</button>
 
-    <div id="info-panel"
-        style="position: absolute; top: 70px; left: 20px; background: rgba(10,10,10,0.85); border: 1px solid rgba(255,255,255,0.15); padding: 15px 20px; border-radius: 8px; width: 280px; backdrop-filter: blur(10px); z-index: 15; display: none; pointer-events: auto;">
-        <h3 style="margin: 0 0 10px 0; font-size: 1em;">How to Explore</h3>
-        <p style="margin: 8px 0; font-size: 0.9em; color: #ccc;"><strong>Move:</strong> Use WASD, drag the canvas, or
-            swipe on touch</p>
-        <p style="margin: 8px 0; font-size: 0.9em; color: #ccc;"><strong>Zoom:</strong> Use scroll wheel or pinch on
-            touch</p>
-        <p style="margin: 8px 0; font-size: 0.9em; color: #ccc;"><strong>Discover:</strong> Walk into color fields to
-            find songs</p>
-        <p style="margin: 8px 0; font-size: 0.9em; color: #ccc;"><strong>Journey:</strong> Use the buttons below to take
-            a guided tour</p>
-    </div>
-
     <script>
         document.getElementById('info-toggle').addEventListener('click', () => {
-            const panel = document.getElementById('info-panel');
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            // Restart Intro
+            introStep = 0;
+            document.getElementById('intro-layer').style.display = 'flex';
+            document.getElementById('intro-layer').style.opacity = 1;
+            nextIntroStep();
         });
     </script>
 
@@ -734,41 +960,52 @@
         // ==========================================
         // 5. JOURNEY & PATHFINDING (From 22DecTry)
         // ==========================================
+        // ==========================================
+        // 5. JOURNEY & PATHFINDING
+        // ==========================================
         function startRandomJourney() {
             let songs = appState.songs;
             if (songs.length < 2) return alert("Need more songs!");
-            let farSongs = songs.filter(s => Math.sqrt((s.x - player.x) ** 2 + (s.y - player.y) ** 2) > 400 && s.status !== 'error');
+
+            // Look further for random songs due to large map
+            let farSongs = songs.filter(s => Math.hypot(s.x - player.x, s.y - player.y) > 1500 && s.status !== 'error');
             let target = farSongs.length > 0 ? farSongs[Math.floor(Math.random() * farSongs.length)] : songs[Math.floor(Math.random() * songs.length)];
             guideTarget = target;
 
+            // Widen the corridor for finding waypoints
             let waypoints = [];
             let vectorX = target.x - player.x;
             let vectorY = target.y - player.y;
-            let totalDist = Math.sqrt(vectorX * vectorX + vectorY * vectorY);
+            let totalDist = Math.hypot(vectorX, vectorY);
 
             songs.forEach(s => {
                 if (s === target || s.status === 'error') return;
                 let sx = s.x - player.x;
                 let sy = s.y - player.y;
                 let dot = (sx * vectorX + sy * vectorY) / (totalDist * totalDist);
-                if (dot > 0.1 && dot < 0.9) {
+                // Wider corridor (0.1-0.9 proj, < 400px from line)
+                if (dot > 0.05 && dot < 0.95) {
                     let projX = player.x + dot * vectorX;
                     let projY = player.y + dot * vectorY;
-                    if (Math.sqrt((s.x - projX) ** 2 + (s.y - projY) ** 2) < 200) waypoints.push(s);
+                    if (Math.hypot(s.x - projX, s.y - projY) < 400) waypoints.push(s);
                 }
             });
-            waypoints.sort((a, b) => ((a.x - player.x) ** 2 + (a.y - player.y) ** 2) - ((b.x - player.x) ** 2 + (b.y - player.y) ** 2));
+            waypoints.sort((a, b) => Math.hypot(a.x - player.x, a.y - player.y) - Math.hypot(b.x - player.x, b.y - player.y));
 
-            if (waypoints.length > 22) {
+            // Sampling if too many
+            if (waypoints.length > 15) {
                 let sampled = [];
-                for (let i = 0; i < 22; i++) sampled.push(waypoints[Math.floor(i * waypoints.length / 22)]);
+                for (let i = 0; i < 15; i++) sampled.push(waypoints[Math.floor(i * waypoints.length / 15)]);
                 waypoints = sampled;
             }
 
             guidePath = [];
-            guidePath.push({ x: player.x, y: player.y });
-            waypoints.forEach(wp => guidePath.push({ x: wp.x, y: wp.y }));
-            guidePath.push({ x: target.x, y: target.y });
+            // Do NOT add player pos as first point if using index 0 for next song
+            guidePath.push(target); // Reversed? No, target is last.
+
+            // Re-build path: Waypoints -> Target
+            guidePath = [...waypoints, target];
+            // If waypoints is empty, just go to target
 
             startJourneyUI();
         }
@@ -776,37 +1013,48 @@
         function startNeighborhoodJourney() {
             let songs = appState.songs;
             let startSong;
-            let nearbySongs = songs.filter(s => Math.sqrt((s.x - player.x) ** 2 + (s.y - player.y) ** 2) < 600 && s.status !== 'error');
+            // Radius 2500 for large clusters
+            let nearbySongs = songs.filter(s => Math.hypot(s.x - player.x, s.y - player.y) < 2500 && s.status !== 'error');
 
             if (nearbySongs.length > 0) {
+                // Sort by distance to player to find true start
+                nearbySongs.sort((a, b) => Math.hypot(a.x - player.x, a.y - player.y) - Math.hypot(b.x - player.x, b.y - player.y));
                 startSong = nearbySongs[0];
             } else {
                 startSong = songs.filter(s => s.status !== 'error')[Math.floor(Math.random() * songs.length)];
-                player.x = startSong.x; player.y = startSong.y;
+                player.x = startSong.x; player.y = startSong.y; // Teleport if lost
             }
 
-            let visited = new Set();
-            let spiral = [];
-            spiral.push({ x: startSong.x, y: startSong.y });
-            visited.add(startSong);
+            // Greedy Nearest Neighbor Path
+            let path = [startSong];
+            let visited = new Set([startSong]);
+            let current = startSong;
 
-            let maxRingDistance = 500;
-            let ringWidth = 80;
+            // Find up to 15 neighbors
+            for (let i = 0; i < 15; i++) {
+                let minDist = Infinity;
+                let next = null;
 
-            for (let ringDist = ringWidth; ringDist < maxRingDistance; ringDist += ringWidth) {
-                let ringSongs = songs.filter(s => {
-                    let dist = Math.sqrt((s.x - startSong.x) ** 2 + (s.y - startSong.y) ** 2);
-                    return dist >= (ringDist - ringWidth / 2) && dist <= (ringDist + ringWidth / 2) && s.status !== 'error' && !visited.has(s);
+                // Search unvisited within reasonable hop distance (e.g. 800px)
+                songs.forEach(s => {
+                    if (visited.has(s) || s.status === 'error') return;
+                    let d = Math.hypot(s.x - current.x, s.y - current.y);
+                    if (d < 1500 && d < minDist) {
+                        minDist = d;
+                        next = s;
+                    }
                 });
-                if (ringSongs.length === 0) continue;
-                ringSongs.sort((a, b) => Math.atan2(a.y - startSong.y, a.x - startSong.x) - Math.atan2(b.y - startSong.y, b.x - startSong.x));
-                ringSongs.forEach(song => { spiral.push({ x: song.x, y: song.y }); visited.add(song); });
+
+                if (next) {
+                    path.push(next);
+                    visited.add(next);
+                    current = next;
+                } else {
+                    break; // No more close neighbors
+                }
             }
 
-            if (spiral.length < 2) return alert("Not enough songs nearby!");
-
-            guidePath = spiral;
-            guidePath.push({ x: startSong.x, y: startSong.y });
+            guidePath = path;
             startJourneyUI();
         }
 
@@ -817,17 +1065,19 @@
             document.getElementById('auto-btn').innerText = "⏸ Pause Tour";
 
             if (currentSongId) {
-                isAutopilot = true; autopilotIndex = 1; autopilotState = "LISTENING";
+                // Already playing? Queue tour.
+                isAutopilot = true; autopilotIndex = 0; autopilotState = "LISTENING";
                 document.getElementById('np-status').style.display = "block";
                 document.getElementById('np-status').innerText = "TOUR QUEUED: Waiting for current song...";
                 document.getElementById('skip-btn').style.display = 'none';
             } else {
-                isAutopilot = true; autopilotIndex = 1; autopilotState = "MOVING";
+                // Not playing. Move to first point.
+                isAutopilot = true; autopilotIndex = 0; autopilotState = "MOVING";
                 document.getElementById('skip-btn').style.display = 'flex';
                 document.getElementById('np-status').style.display = "block";
-                document.getElementById('np-status').innerText = "AUTOPILOT: MOVING...";
+                document.getElementById('np-status').innerText = "AUTOPILOT: MOVING TO START...";
             }
-            camera.targetZoom = 0.7;
+            camera.targetZoom = 0.6; // Slightly zoomed out for view
         }
 
         function toggleAutopilot() {
@@ -874,17 +1124,10 @@
         // ==========================================
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        const fogCanvas = document.createElement('canvas');
-        const fogCtx = fogCanvas.getContext('2d');
 
         window.addEventListener('resize', resize);
         function resize() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            fogCanvas.width = 4000; fogCanvas.height = 4000;
-            fogCtx.fillStyle = "rgba(0, 0, 0, 0.40)"; fogCtx.fillRect(0, 0, 4000, 4000);
-            fogCtx.globalCompositeOperation = "destination-out";
-            fogCtx.beginPath(); fogCtx.arc(2000, 2000, 300, 0, Math.PI * 2); fogCtx.fill();
-            fogCtx.globalCompositeOperation = "source-over";
         }
         resize();
 
@@ -1003,8 +1246,15 @@
             if (!touching && currentSongId && !isAutopilot) { stopSong(); currentSongId = null; }
 
             // Player & Fog
-            ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2); ctx.fill();
-            ctx.save(); ctx.globalCompositeOperation = "source-over"; ctx.drawImage(fogCanvas, -2000, -2000); ctx.restore();
+            if (playerImg && playerImg.complete && playerImg.naturalWidth !== 0) {
+                // Draw Sprite
+                let size = player.size * 5; // Good size for pixel art
+                ctx.imageSmoothingEnabled = false; // Keep pixels sharp
+                ctx.drawImage(playerImg, player.x - size / 2, player.y - size / 2, size, size);
+            } else {
+                ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2); ctx.fill();
+            }
+
             ctx.restore();
         }
 
@@ -1114,14 +1364,183 @@
             document.getElementById('now-playing').style.display = "none";
         }
 
-        document.getElementById('start-btn').addEventListener('click', () => {
-            document.getElementById('start-screen').style.opacity = '0';
-            setTimeout(() => document.getElementById('start-screen').style.display = 'none', 500);
-            // Init audio (requires gesture)
-            if (playerInstance) playerInstance.playVideo();
-            setTimeout(() => { if (playerInstance) playerInstance.stopVideo(); }, 100);
-            loadData(); // LOAD DATA ONLY AFTER ENTRY
+        // ==========================================
+        // 9. GAMIFIED INTRO LOGIC
+        // ==========================================
+        const introText = document.getElementById('dialogue-text');
+        const nextArrow = document.getElementById('next-arrow');
+        const actionBox = document.getElementById('intro-actions');
+        const guideChar = document.getElementById('guide-char');
+
+        // Character Sprite
+        // We will look for a local file first.
+        let userAvatar = 'assets/avatar.gif';
+        let playerImg = new Image();
+        playerImg.src = userAvatar;
+        // Fallback or verify load
+        playerImg.onerror = () => {
+            // If local fails, maybe use a placeholder or just keep circle
+            console.log("Custom avatar not found, using default circle");
+            playerImg = null;
+        };
+
+        // Initial intro setup
+        guideChar.style.backgroundImage = `url('${userAvatar}')`;
+
+        let introStep = 0;
+        const steps = [
+            {
+                text: "Hello there! Welcome to the world of MUSICAL GALAXY!\n\nThis is Munir's music gallery. I am your guide in this neighborhood.\nPeople call me the Music Prof!",
+                pose: "bounce"
+            },
+            {
+                text: "This world is inhabited by bubbles called... SONGS.\n\nThey float around in clusters. Walk up to them to hear their sound!",
+                pose: "normal"
+            },
+            {
+                text: "NAVIGATING IS EASY!\n\nUse [W, A, S, D] to move your character.\nUse your Mouse to drag the camera view.\n(Dragging also moves you on Touch Screens!)",
+                pose: "normal"
+            },
+            {
+                text: "Want to make your own version of this app?\n\nCheck out the GitHub repo! You can fork it and use your own data.",
+                action: "repo_link"
+            },
+            {
+                text: "Alright! Your journey is about to begin.\n\nAre you ready to enter the Gallery?",
+                action: "start_choice"
+            }
+        ];
+
+        // Credits Logic
+        async function showCredits() {
+            console.log("Attempting to load credits...");
+            try {
+                const response = await fetch('assets/credits.txt');
+                console.log("Fetch response:", response.status);
+                if (!response.ok) throw new Error("File not found");
+
+                const text = await response.text();
+                document.getElementById('credits-content').innerText = text;
+                document.getElementById('credits-modal').style.display = 'flex';
+            } catch (e) {
+                console.error("Credits Load Error:", e);
+                document.getElementById('credits-content').innerText = "Could not load 'assets/credits.txt'.\nCheck console for details.\n" + e.message;
+                document.getElementById('credits-modal').style.display = 'flex';
+            }
+        }
+
+        function closeCredits() {
+            document.getElementById('credits-modal').style.display = 'none';
+        }
+
+
+        function typeText(text, callback) {
+            introText.innerHTML = "";
+            nextArrow.style.display = "none";
+            actionBox.style.display = "none";
+
+            let i = 0;
+            // Beep sound effect could go here
+            let interval = setInterval(() => {
+                introText.innerHTML += text.charAt(i);
+                i++;
+                if (i >= text.length) {
+                    clearInterval(interval);
+                    if (callback) callback();
+                    else nextArrow.style.display = "block";
+                }
+            }, 30); // Typing speed
+        }
+
+        function nextIntroStep() {
+            if (introStep >= steps.length) {
+                endIntro();
+                return;
+            }
+
+            let s = steps[introStep];
+            introStep++;
+
+            typeText(s.text, () => {
+                // Action Logic
+                if (s.action === "repo_link") {
+                    nextArrow.style.display = "block";
+                } else if (s.action === "start_choice") {
+                    // Single massive button
+                    showActions("LET'S GO!", null, () => endIntro(), null);
+                } else {
+                    nextArrow.style.display = "block";
+                }
+            });
+        }
+
+        function showActions(label1, label2, cb1, cb2) {
+            actionBox.style.display = "flex";
+            let b1 = document.getElementById('act-btn-1');
+            let b2 = document.getElementById('act-btn-2');
+            b1.innerText = label1; b1.onclick = cb1;
+
+            if (label2) {
+                b2.style.display = "inline-block";
+                b2.innerText = label2; b2.onclick = cb2;
+            } else {
+                b2.style.display = "none";
+            }
+        }
+
+        // Space/Enter Support for Intro
+        document.addEventListener('keydown', (e) => {
+            const introLayer = document.getElementById('intro-layer');
+            if (introLayer.style.display !== 'none' && introLayer.style.opacity !== '0') {
+                if (e.key === ' ' || e.key === 'Enter') {
+                    // If typing is done (arrow visible) OR if we are at start button
+                    if (nextArrow.style.display === 'block') {
+                        nextIntroStep();
+                    } else if (document.getElementById('intro-actions').style.display === 'flex') {
+                        // Valid for 'Let's Go' single button
+                        if (document.getElementById('act-btn-2').style.display === 'none') {
+                            document.getElementById('act-btn-1').click();
+                        }
+                    }
+                }
+            }
         });
+
+        // Handle Avatar Upload
+        document.getElementById('avatar-upload').addEventListener('change', (e) => {
+            let file = e.target.files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = (evt) => {
+                    userAvatar = evt.target.result;
+                    // Update Guide Char to show preview
+                    guideChar.style.backgroundImage = `url('${userAvatar}')`;
+                    guideChar.style.height = "64px"; // Pixel art size
+                    guideChar.style.width = "64px";
+                    player.size = 15; // Make player bigger for sprite
+                    // We need to modify render to draw image instead of circle logic later
+                    // For now, proceed
+                    nextArrow.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function endIntro() {
+            document.getElementById('intro-layer').style.opacity = 0;
+            setTimeout(() => {
+                document.getElementById('intro-layer').style.display = 'none';
+                // Start Audio context
+                if (playerInstance && playerInstance.playVideo) {
+                    playerInstance.playVideo();
+                    setTimeout(() => playerInstance.pauseVideo(), 500);
+                }
+                loadData();
+            }, 500);
+        }
+
+        // Start the Intro
+        setTimeout(nextIntroStep, 500);
 
         // START LOOP
         setInterval(draw, 16);

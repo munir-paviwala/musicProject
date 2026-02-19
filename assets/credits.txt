@@ -1,0 +1,44 @@
+generated using the Universal LPC Spritesheet Generator.
+
+body/bodies/male/walk/light.png
+    - Note: see details at https://opengameart.org/content/lpc-character-bases; 'Thick' Male Revised Run/Climb by JaidynReiman (based on ElizaWy's LPC Revised)
+    - Licenses: OGA-BY 3.0, CC-BY-SA 3.0, GPL 3.0
+    - Authors: bluecarrot16, JaidynReiman, Benjamin K. Smith (BenCreating), Evert, Eliza Wyatt (ElizaWy), TheraHedwig, MuffinElZangano, Durrani, Johannes Sjölund (wulax), Stephen Challener (Redshrike)
+
+head/heads/human/male/walk/light.png
+    - Note: original head by Redshrike, tweaks by BenCreating, modular version by bluecarrot16
+    - Licenses: OGA-BY 3.0, CC-BY-SA 3.0, GPL 3.0
+    - Authors: bluecarrot16, Benjamin K. Smith (BenCreating), Stephen Challener (Redshrike)
+
+head/faces/male/happy/walk/light.png
+    - Note: Original by Redshrike, Expressions by ElizaWy, mapped to all frames by JaidynReiman
+    - Licenses: OGA-BY 3.0
+    - Authors: JaidynReiman, ElizaWy, Stephen Challener (Redshrike)
+
+hair/long/adult/walk/gray.png
+    - Licenses: CC-BY-SA 3.0, GPL 3.0
+    - Authors: JaidynReiman, Manuel Riecke (MrBeast)
+
+torso/clothes/longsleeve/longsleeve/male/walk/sky.png
+    - Note: original by wulax; tweaks and further recolors by bluecarrot16
+    - Licenses: OGA-BY 3.0, CC-BY-SA 3.0, GPL 3.0
+    - Authors: JaidynReiman, Johannes Sjölund (wulax)
+
+torso/jacket/collared/male/walk/rose.png
+    - Licenses: CC-BY-SA 3.0, GPL 3.0
+    - Authors: bluecarrot16
+
+legs/pants2/male/walk/charcoal.png
+    - Note: original overalls by ElizaWy, base animations adapted from v3 overalls by bluecarrot16, pants by JaidynReiman
+    - Licenses: OGA-BY 3.0, GPL 3.0
+    - Authors: JaidynReiman, ElizaWy, Bluecarrot16, Johannes Sjölund (wulax), Stephen Challener (Redshrike)
+
+feet/shoes/basic/male/walk/bronze.png
+    - Note: original by wulax, edited for v3 base by bluecarrot16
+    - Licenses: OGA-BY 3.0, CC-BY-SA 3.0, GPL 3.0
+    - Authors: JaidynReiman, bluecarrot16, Johannes Sjölund (wulax)
+
+weapon/magic/s/universal/foreground/walk/gold.png
+    - Note: Wooden staff by LordNeo, first adapted to LPC by bigbeargames; re-drawn and walk animations added by bluecarrot16
+    - Licenses: CC0
+    - Authors: LordNeo, Michael Whitlock (bigbeargames), bluecarrot16
