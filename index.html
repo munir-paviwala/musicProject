@@ -1390,15 +1390,15 @@
         let introStep = 0;
         const steps = [
             {
-                text: "Hello there! Welcome to the world of MUSICAL GALAXY!\n\nThis is Munir's music gallery. I am your guide in this neighborhood.\nPeople call me the Music Prof!",
+                text: "Hello there! Welcome to the world of MUSICAL GALAXY!\n\nI am Munir. \n\nI am your guide in this neighborhood.",
                 pose: "bounce"
             },
             {
-                text: "This world is inhabited by bubbles called... SONGS.\n\nThey float around in clusters. Walk up to them to hear their sound!",
+                text: "This world is inhabited by bubbles called... SONGS.\n\nThey float around in clusters. \n\nWalk up to them to hear their sound!",
                 pose: "normal"
             },
             {
-                text: "NAVIGATING IS EASY!\n\nUse [W, A, S, D] to move your character.\nUse your Mouse to drag the camera view.\n(Dragging also moves you on Touch Screens!)",
+                text: "NAVIGATING IS EASY!\n\nUse [W, A, S, D] to move your character.\nUse your Mouse to drag the camera view.\n\nDragging also moves you on Touch Screens!",
                 pose: "normal"
             },
             {
@@ -1434,22 +1434,46 @@
         }
 
 
+        let typingInterval;
+        let isTyping = false;
+        let currentFullText = "";
+
         function typeText(text, callback) {
+            // Reset State
+            clearInterval(typingInterval);
             introText.innerHTML = "";
             nextArrow.style.display = "none";
             actionBox.style.display = "none";
+            isTyping = true;
+            currentFullText = text;
 
             let i = 0;
-            // Beep sound effect could go here
-            let interval = setInterval(() => {
+            typingInterval = setInterval(() => {
                 introText.innerHTML += text.charAt(i);
                 i++;
                 if (i >= text.length) {
-                    clearInterval(interval);
+                    clearInterval(typingInterval);
+                    isTyping = false;
                     if (callback) callback();
                     else nextArrow.style.display = "block";
                 }
             }, 30); // Typing speed
+        }
+
+        function finishTypingNow() {
+            clearInterval(typingInterval);
+            introText.innerHTML = currentFullText;
+            isTyping = false;
+
+            // Check if there was a callback action needed
+            let s = steps[introStep - 1]; // Current step
+            if (s && s.action === "repo_link") {
+                nextArrow.style.display = "block";
+            } else if (s && s.action === "start_choice") {
+                showActions("LET'S GO!", null, () => endIntro(), null);
+            } else {
+                nextArrow.style.display = "block";
+            }
         }
 
         function nextIntroStep() {
@@ -1462,11 +1486,10 @@
             introStep++;
 
             typeText(s.text, () => {
-                // Action Logic
+                // Action Logic (Callback when typing done normally)
                 if (s.action === "repo_link") {
                     nextArrow.style.display = "block";
                 } else if (s.action === "start_choice") {
-                    // Single massive button
                     showActions("LET'S GO!", null, () => endIntro(), null);
                 } else {
                     nextArrow.style.display = "block";
@@ -1493,13 +1516,20 @@
             const introLayer = document.getElementById('intro-layer');
             if (introLayer.style.display !== 'none' && introLayer.style.opacity !== '0') {
                 if (e.key === ' ' || e.key === 'Enter') {
-                    // If typing is done (arrow visible) OR if we are at start button
-                    if (nextArrow.style.display === 'block') {
-                        nextIntroStep();
-                    } else if (document.getElementById('intro-actions').style.display === 'flex') {
-                        // Valid for 'Let's Go' single button
-                        if (document.getElementById('act-btn-2').style.display === 'none') {
-                            document.getElementById('act-btn-1').click();
+                    e.preventDefault(); // Prevent scrolling
+
+                    if (isTyping) {
+                        // Case 1: Currently Typing -> Finish Immediately
+                        finishTypingNow();
+                    } else {
+                        // Case 2: Waiting -> Next Step
+                        // If arrow visible OR if we are at start button
+                        if (nextArrow.style.display === 'block') {
+                            nextIntroStep();
+                        } else if (document.getElementById('intro-actions').style.display === 'flex') {
+                            if (document.getElementById('act-btn-2').style.display === 'none') {
+                                document.getElementById('act-btn-1').click();
+                            }
                         }
                     }
                 }
