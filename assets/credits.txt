@@ -1,4 +1,46 @@
-generated using the Universal LPC Spritesheet Generator.
+MUNIR'S MUSIC GALLERY
+=====================
+Created by Munirmahedi Paviwala. 
+
+TLDR: I made this for fun and not charging any money or anything. Enjoy enjoy. Details of copyright and stuff below.
+
+---
+DISCLAIMER & COPYRIGHT WARNING
+---
+This project functions as a specialized, interactive YouTube embed player.
+
+1. COMPLIANCE: This application strictly adheres to the YouTube Embed API Terms of Service.
+2. NO STORAGE: No audio files, video files, or copyrighted media are stored on this server. We only store metadata (titles, coordinates) and YouTube Video IDs.
+3. STREAMING: All music is streamed directly from YouTube's servers in real-time. Views are verified and count towards the content creators' stats.
+4. NON-COMMERCIAL: This is a free, open-source personal project for educational and artistic purposes. No money is charged, and no ads are displayed.
+5. RIGHTS: We do not claim ownership of any music played. All rights belong to the respective artists, labels, and publishers. (I would be sad if you do that, but meh, I understand if you do have to do this.)
+
+If you are a copyright holder and believe this usage infringes on your rights, please note that standard YouTube Embed restrictions apply (e.g., if you block embedding on your video, it will not play here).
+
+---
+HOW TO EXPLORE THE GALAXY
+---
+[ W, A, S, D ]  : Move your character
+[ Mouse Drag ]  : Pan the camera view
+[ Scroll ]      : Zoom In / Out
+
+---
+AUTOMATIC GUIDES
+---
+Open the "Guide Mode" menu (bottom left) to enable Autopilot:
+
+1. EXPLORE NEIGHBORHOOD:
+   The "Prof" will take you on a circular tour of the cluster you are currently in. Perfect for browsing a specific genre or playlist.
+
+2. GUIDE ME SOMEWHERE:
+   Takes you on a random journey to a far-away part of the galaxy, visiting interesting songs along the way.
+
+Have fun exploring!
+
+---
+AVATAR CREDITS
+---
+The avatar is generated using the Universal LPC Spritesheet Generator.
 
 body/bodies/male/walk/light.png
     - Note: see details at https://opengameart.org/content/lpc-character-bases; 'Thick' Male Revised Run/Climb by JaidynReiman (based on ElizaWy's LPC Revised)
