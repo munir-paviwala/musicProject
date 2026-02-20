@@ -4,7 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>Munir's Music Gallery</title>
+    <script src="user_config.js"></script>
+    <title>Music Galaxy</title>
+    <script>
+        document.title = typeof CONFIG !== 'undefined' ? CONFIG.pageTitle : "Music Galaxy";
+    </script>
     <style>
         /* === RESET & BASE (From 22DecTry) === */
         body {
@@ -553,6 +557,11 @@
         <button id="skip-btn-intro" onclick="endIntro()"
             style="position: absolute; bottom: 20px; right: 20px; background: transparent; color: #666; border: none; font-family: 'Press Start 2P', cursive; font-size: 10px; cursor: pointer;">[SKIP
             INTRO]</button>
+
+        <!-- Original Creator Attribution -->
+        <a href="https://github.com/munir-paviwala/musicForAll" target="_blank"
+            style="position: absolute; bottom: 20px; left: 20px; color: #444; text-decoration: none; font-family: 'Press Start 2P', cursive; font-size: 8px; z-index: 2000; text-transform: uppercase;">Original
+            Engine by Munir Paviwala</a>
     </div>
 
     <!-- Hidden Avatar Input -->
@@ -570,6 +579,10 @@
     <button id="btn-admin-toggle" class="btn" style="position: absolute; top: 20px; right: 20px; z-index: 10;">⚙️ Manage
         Data</button>
 
+    <a id="btn-magic-edit" class="btn"
+        style="position: absolute; top: 60px; right: 20px; z-index: 10; color: #00E5FF; border-color: #00E5FF; text-decoration: none;"
+        target="_blank">⚙️ Edit Playlists</a>
+
     <script>
         document.getElementById('info-toggle').addEventListener('click', () => {
             // Restart Intro
@@ -578,6 +591,22 @@
             document.getElementById('intro-layer').style.opacity = 1;
             nextIntroStep();
         });
+
+        // Setup Magic Edit Button
+        (function setupMagicEdit() {
+            const btn = document.getElementById('btn-magic-edit');
+            const hostname = window.location.hostname;
+            if (hostname.includes('.github.io')) {
+                const username = hostname.split('.')[0];
+                const parts = window.location.pathname.split('/').filter(p => p.length > 0);
+                const repo = parts.length > 0 ? parts[0] : '';
+                btn.href = `https://github.com/${username}/${repo}/edit/main/playlists.txt`;
+            } else {
+                // Local or generic fallback
+                btn.href = `https://github.com/munir-paviwala/musicForAll/edit/main/playlists.txt`;
+                btn.title = 'Fallback to original repo for local dev';
+            }
+        })();
     </script>
 
     <!-- === JOURNEY PANEL === -->
@@ -600,41 +629,19 @@
         </div>
 
         <div class="admin-content">
-            <!-- STEP 1: CAPTURE -->
+            <!-- THE PIPELINE -->
             <div class="admin-section">
-                <span class="admin-label">1. Capture Music</span>
+                <span class="admin-label">1. Add Music</span>
                 <p style="font-size: 0.85em; color: #8b949e; margin-bottom: 10px;">
-                    Drag this button to your bookmarks bar. Click it when viewing any YouTube playlist.
+                    This galaxy is built automatically. To add new playlists, open your repository on GitHub, edit
+                    <code>playlists.txt</code>, and paste your YouTube playlist links. The automated bots will fetch the
+                    songs and rebuild the map for you.
                 </p>
-                <a href="javascript:(function(){const s=document.createElement('script');s.src='https://munirpaviwala.github.io/musicProject/datascrapper.js?v='+Date.now();document.body.appendChild(s);})();"
-                    class="bookmarklet-btn" onclick="return false;">
-                    🎵 Scrape Playlist
-                </a>
             </div>
 
-            <!-- STEP 2: IMPORT -->
+            <!-- STEP 2: CURATOR NOTES -->
             <div class="admin-section">
-                <span class="admin-label">2. Import Data</span>
-                <textarea id="import-box" class="code-box"
-                    placeholder="Paste the JSON from the scraper here..."></textarea>
-                <button id="btn-import" class="btn btn-primary" style="width:100%; margin-top:10px;">⬇ Import &
-                    Merge</button>
-            </div>
-
-            <!-- STEP 3: ORGANIZE -->
-            <div class="admin-section">
-                <span class="admin-label">3. Organize</span>
-                <p style="font-size: 0.85em; color: #8b949e; margin-bottom: 10px;">
-                    Re-calculates the entire map. Largest playlists go to center.
-                </p>
-                <button id="btn-recluster" class="btn" style="width:100%; background: #238636; border-color: #2ea043;">
-                    ⚡ Regenerate Layout
-                </button>
-            </div>
-
-            <!-- STEP 4: CURATOR NOTES -->
-            <div class="admin-section">
-                <span class="admin-label">4. Curator Notes</span>
+                <span class="admin-label">2. Curator Notes</span>
                 <p style="font-size: 0.85em; color: #8b949e; margin-bottom: 10px;">
                     Add descriptions to your clusters for the placards.
                 </p>
@@ -648,9 +655,9 @@
                 </div>
             </div>
 
-            <!-- STEP 5: SAVE -->
+            <!-- STEP 3: SAVE -->
             <div class="admin-section">
-                <span class="admin-label">5. Save Changes</span>
+                <span class="admin-label">3. Save Changes</span>
                 <button id="btn-export" class="btn" style="width:100%;">📋 Copy 'data.json'</button>
                 <p style="font-size: 0.8em; color: #8b949e; margin-top: 8px;">
                     Copy this and overwrite your local <code>data.json</code> file on GitHub to save permanently.
@@ -692,7 +699,8 @@
         // ==========================================
         // 1. CONFIG & UTILS (From index.html)
         // ==========================================
-        const SEED = "MunirMusicGalaxy";
+        const SEED = typeof CONFIG !== 'undefined' ? CONFIG.galaxySeed : "MunirMusicGalaxy";
+        const LOCAL_STORAGE_KEY = `music_galaxy_data_${SEED}`;
         const COLORS = [
             "#FF1744", "#F50057", "#D500F9", "#651FFF", "#2979F3", "#00B0FF",
             "#00E5FF", "#1DE9B6", "#00E676", "#76FF03", "#FFEA00", "#FFC400",
@@ -889,18 +897,39 @@
         // 4. DATA MANAGEMENT (From index.html)
         // ==========================================
         function loadData() {
-            let local = localStorage.getItem('munir_music_data');
-            if (local) {
-                try {
-                    console.log("Loaded from LocalStorage");
-                    parseData(JSON.parse(local));
-                    return;
-                } catch (e) { console.error("Local data corrupt", e); }
-            }
-            fetch('data.json').then(r => r.json()).then(data => {
-                console.log("Loaded from data.json");
-                parseData(data);
-            }).catch(e => console.warn("No data loaded. Starting fresh."));
+            // Always fetch the freshest data from the server (bypassing browser cache)
+            fetch('data.json?t=' + new Date().getTime())
+                .then(r => r.json())
+                .then(serverData => {
+                    console.log("Loaded fresh data from server.");
+
+                    // Check if the curator has unsaved local notes they are working on
+                    let local = localStorage.getItem(LOCAL_STORAGE_KEY);
+                    if (local) {
+                        try {
+                            let localData = JSON.parse(local);
+                            // Overlay local notes onto the server's anchors
+                            if (localData.anchors && serverData.anchors) {
+                                serverData.anchors.forEach(sa => {
+                                    let la = localData.anchors.find(a => a.id === sa.id);
+                                    if (la && la.description) {
+                                        sa.description = la.description;
+                                    }
+                                });
+                            }
+                        } catch (e) { console.error("Local notes corrupt", e); }
+                    }
+                    parseData(serverData);
+                })
+                .catch(e => {
+                    console.warn("Failed to fetch server data, attempting local fallback...");
+                    let local = localStorage.getItem(LOCAL_STORAGE_KEY);
+                    if (local) {
+                        try {
+                            parseData(JSON.parse(local));
+                        } catch (err) { }
+                    }
+                });
         }
 
         function parseData(data) {
@@ -929,7 +958,7 @@
         }
 
         function saveToLocalStorage() {
-            localStorage.setItem('munir_music_data', JSON.stringify({
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
                 playlists: appState.playlists,
                 anchors: appState.anchors
             }));
@@ -939,76 +968,7 @@
         document.getElementById('btn-admin-toggle').onclick = () => document.getElementById('admin-panel').classList.toggle('open');
         document.getElementById('btn-admin-close').onclick = () => document.getElementById('admin-panel').classList.remove('open');
 
-        let reclusterTimeout;
-        document.getElementById('btn-recluster').onclick = function () {
-            const btn = this;
-            if (btn.classList.contains('confirming')) {
-                // Confirmed!
-                clearTimeout(reclusterTimeout);
-                btn.innerText = "⚡ Regenerate Layout";
-                btn.classList.remove('confirming');
-                btn.style.background = "#238636"; // Reset color
-                runClusterSimulation();
-            } else {
-                // First Click: Ask for confirmation
-                btn.classList.add('confirming');
-                btn.innerText = "⚠️ Click again to confirm";
-                btn.style.background = "#d29922"; // Orange warning
-
-                reclusterTimeout = setTimeout(() => {
-                    btn.classList.remove('confirming');
-                    btn.innerText = "⚡ Regenerate Layout";
-                    btn.style.background = "#238636";
-                }, 3000); // Reset after 3 seconds
-            }
-        }
-        let importTimeout;
-        document.getElementById('btn-import').onclick = function () {
-            const btn = this;
-            try {
-                let raw = document.getElementById('import-box').value;
-                if (!raw) throw "Empty";
-                let newSongs = JSON.parse(raw);
-                if (!Array.isArray(newSongs)) throw "Not Array";
-
-                let playlistId = "IMP_" + Date.now();
-                let playlistName = newSongs[0]?.note || "Imported Playlist";
-
-                let newPlaylist = {
-                    id: playlistId,
-                    name: playlistName,
-                    songCount: newSongs.length,
-                    songs: newSongs.map(s => ({ ...s, playlistSource: playlistName, status: 'active' }))
-                };
-
-                appState.playlists.push(newPlaylist);
-
-                // Success Feedback
-                btn.innerText = `✅ Added ${newSongs.length} songs!`;
-                btn.style.background = "#238636";
-                document.getElementById('import-box').value = "";
-                saveToLocalStorage();
-
-                // Reset text after 3s
-                clearTimeout(importTimeout);
-                importTimeout = setTimeout(() => {
-                    btn.innerText = "⬇ Import & Merge";
-                    btn.style.background = "#0088ff"; // Primary blue
-                }, 3000);
-
-            } catch (e) {
-                // Error Feedback
-                const originalText = btn.innerText;
-                const originalColor = btn.style.background;
-                btn.innerText = "❌ Invalid JSON";
-                btn.style.background = "#d2222d"; // Red
-
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.style.background = ""; // Reset to CSS default
-                }, 2000);
-            }
-        }
+        // === ADMIN PANEL LOGIC ===
 
         // === ADMIN PANEL LOGIC ===
 
@@ -1071,7 +1031,7 @@
             const btn = this;
             if (btn.classList.contains('confirming')) {
                 // Confirmed
-                localStorage.removeItem('munir_music_data');
+                localStorage.removeItem(LOCAL_STORAGE_KEY);
                 location.reload();
             } else {
                 // First Click
@@ -1307,12 +1267,19 @@
             let closestAnchor = null;
             let closestAnchorDist = Infinity;
 
-            appState.anchors.forEach(a => {
+            appState.anchors.forEach((a, i) => {
+                // Original subtle radial glow
                 let grad = ctx.createRadialGradient(a.x, a.y, 0, a.x, a.y, a.radius);
-                grad.addColorStop(0, a.color); grad.addColorStop(1, "rgba(0,0,0,0)");
-                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(a.x, a.y, a.radius, 0, Math.PI * 2); ctx.fill();
+                grad.addColorStop(0, a.color);
+                grad.addColorStop(1, "rgba(0,0,0,0)");
+                ctx.fillStyle = grad;
+                ctx.globalAlpha = 0.8; // Slightly softer than before to keep focus on songs
+                ctx.beginPath();
+                ctx.arc(a.x, a.y, a.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
 
-                // Check distance to player for placard
+                // Check distance to player for placard (using true un-transformed coordinates)
                 let distToAnchor = Math.hypot(player.x - a.x, player.y - a.y);
                 if (distToAnchor < a.radius * 0.4 && distToAnchor < closestAnchorDist) {
                     closestAnchor = a;
@@ -1544,7 +1511,7 @@
         let introStep = 0;
         const steps = [
             {
-                text: "Hello there! Welcome to my MUSICAL GALAXY!\n\nI am Munir. \n\nI am your guide in this neighborhood.",
+                text: typeof CONFIG !== 'undefined' ? CONFIG.introText : "Hello there! Welcome to my MUSICAL GALAXY!\n\nI am Munir. \n\nI am your guide in this neighborhood.",
                 pose: "bounce"
             },
             {
@@ -1556,11 +1523,7 @@
                 pose: "normal"
             },
             {
-                text: "Want to make your own version of this app?\n\nCheck out the GitHub repo! You can fork it and use your own data.",
-                action: "repo_link"
-            },
-            {
-                text: "Alright! Your journey is about to begin.\n\nYou will spawn at a random location in the map.\n\nEnjoy exploring the musical galaxy!",
+                text: "Alright! Your journey is about to begin.\n\nYou can explore this galaxy now, or choose to build your own!",
                 action: "start_choice"
             }
         ];
@@ -1624,7 +1587,7 @@
             if (s && s.action === "repo_link") {
                 nextArrow.style.display = "block";
             } else if (s && s.action === "start_choice") {
-                showActions("LET'S GO!", null, () => endIntro(), null);
+                showActions("LET'S GO!", "BUILD MY OWN", () => endIntro(), () => window.location.href = 'setup.html');
             } else {
                 nextArrow.style.display = "block";
             }
@@ -1644,7 +1607,7 @@
                 if (s.action === "repo_link") {
                     nextArrow.style.display = "block";
                 } else if (s.action === "start_choice") {
-                    showActions("LET'S GO!", null, () => endIntro(), null);
+                    showActions("LET'S GO!", "BUILD MY OWN", () => endIntro(), () => window.location.href = 'setup.html');
                 } else {
                     nextArrow.style.display = "block";
                 }

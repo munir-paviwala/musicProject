@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Your Music Galaxy</title>
+    <!-- Retro Fonts & Clean Sans-Serif Font -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Inter:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #1a0b2e;
+            --primary: #238636;
+            --secondary: #0088ff;
+            --accent: #ff0055;
+            --text-main: #FFFFFF;
+            --text-muted: #A0A5B5;
+            --pixel-border: 4px solid #fff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.03) 2px, transparent 2px),
+                radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.05) 100px, transparent 150px);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Press Start 2P', cursive;
+            padding-bottom: 50px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 90%;
+            margin: 4rem auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Fun, chunky pixel dialogue boxes */
+        .card {
+            background: #000;
+            border: var(--pixel-border);
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.8), inset 4px 4px 0px rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        /* Heading inside cards */
+        .card h2 {
+            font-family: 'Inter', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.5;
+            color: #ffea00;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0px #000;
+            text-transform: uppercase;
+            border-bottom: 2px dashed #444;
+            padding-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Clean, readable body text */
+        .card p,
+        .card li {
+            font-family: 'Inter', sans-serif;
+            font-size: 18px;
+            color: #ddd;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .card ul {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 50px;
+            margin-top: 20px;
+        }
+
+        .hero h1 {
+            font-size: 24px;
+            line-height: 1.4;
+            color: #00E5FF;
+            text-shadow: 4px 4px 0 #000;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-family: 'VT323', monospace;
+            font-size: 26px;
+            color: #fff;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Retro Buttons */
+        .btn-retro {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            border: 4px solid #fff;
+            padding: 15px 25px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 6px 6px 0 #000;
+            text-decoration: none;
+            transition: transform 0.1s, box-shadow 0.1s;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .btn-retro:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 4px 4px 0 #000;
+            background: #2ea043;
+        }
+
+        .btn-retro:active {
+            transform: translate(6px, 6px);
+            box-shadow: 0px 0px 0 #000;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background: #1a94ff;
+        }
+
+        /* Spotify Callout Box */
+        .callout {
+            background: #000;
+            border: 4px solid #1DB954;
+            padding: 20px;
+            margin-top: 25px;
+            box-shadow: inset 0 0 10px rgba(29, 185, 84, 0.2);
+        }
+
+        .callout h3 {
+            color: #1DB954;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .callout-link {
+            color: #1DB954;
+            text-decoration: underline;
+        }
+
+        .callout-link:hover {
+            color: #fff;
+        }
+
+        /* Back Link */
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 10px;
+            border-bottom: 2px dashed #fff;
+            padding-bottom: 2px;
+        }
+
+        .back-link:hover {
+            color: #00E5FF;
+            border-color: #00E5FF;
+        }
+
+        .gif-placeholder {
+            width: 100%;
+            height: auto;
+            border: 4px solid #444;
+            display: block;
+            margin: 20px 0;
+            image-rendering: pixelated;
+            /* Keeps it sharp if you load a low-res gif */
+        }
+
+        .number-badge {
+            background: #fff;
+            color: #000;
+            padding: 5px 10px;
+            display: inline-block;
+            margin-right: 15px;
+            border-radius: 4px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 {
+                font-size: 18px;
+            }
+
+            .card p {
+                font-size: 20px;
+            }
+
+            .back-link {
+                position: relative;
+                top: 0;
+                left: 0;
+                margin: 20px;
+                align-self: flex-start;
+            }
+
+            .btn-retro {
+                width: 100%;
+                font-size: 10px;
+                padding: 15px 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <a href="index.html" class="back-link">
+        < BACK TO GALAXY</a>
+
+            <div class="container">
+                <header class="hero">
+                    <h1>Create Your Own<br><br>MUSIC GALAXY</h1>
+                    <p>Build your personalized universe, completely free. No coding required.</p>
+                </header>
+
+                <section class="card">
+                    <h2><span class="number-badge">1</span> Get Your Copy</h2>
+                    <p>We use GitHub to host the magic for free. Click 'Clone template' to duplicate the engine into
+                        your own private account.</p>
+                    <a href="https://github.com/munir-paviwala/musicForAll/generate" target="_blank"
+                        class="btn-retro btn-secondary">CLONE TEMPLATE</a>
+                </section>
+
+                <section class="card">
+                    <h2><span class="number-badge">2</span> Turn on the Engine</h2>
+                    <p>To automatically map the stars whenever you add a song, you need to flip a powerful switch called
+                        'GitHub Actions'.</p>
+                    <ul>
+                        <li>Go to the <strong>Settings</strong> tab of your new repository.</li>
+                        <li>Click <strong>Pages</strong> in the left sidebar.</li>
+                        <li>Under 'Build and deployment', change 'Source' to <strong>GitHub Actions</strong>.</li>
+                    </ul>
+                    <!-- Placeholder for GIF. Just upload enable_actions.gif to assets folder! -->
+                    <img src="assets/enable_actions.gif" alt="GIF showing how to enable actions" class="gif-placeholder"
+                        onerror="this.src='https://placehold.co/600x300/111/444?text=Upload+assets/enable_actions.gif+here&font=Press+Start+2P'">
+                </section>
+
+                <section class="card">
+                    <h2><span class="number-badge">3</span> Find Your Universe</h2>
+                    <p>Once the engine runs for the very first time (it takes about 2-3 minutes), your brand new website
+                        will be live on the internet!</p>
+                    <p>It will be located precisely at:<br><br>
+                        <strong
+                            style="color: #00E5FF; padding-left: 20px;">https://[your-username].github.io/[name-of-repo]</strong>
+                    </p>
+                    <p>Remember the name you added when cloning, that is [name-of-repo] part. Go bookmark it
+                        immediately! That is your personal galaxy forever.</p>
+                </section>
+
+                <section class="card">
+                    <h2><span class="number-badge">4</span> Gather Fuel</h2>
+                    <p>The engine runs on YouTube Links (Playlists or Individual Songs). You can add as many as you want
+                        in step 5.</p>
+
+                    <div class="callout">
+                        <h3>[!] WARNING: SPOTIFY USERS</h3>
+                        <p>Spotify links don't work directly here! But don't panic.</p>
+                        <p>Use a free tool like <a href="https://www.tunemymusic.com/" target="_blank"
+                                class="callout-link">TuneMyMusic</a> to instantly clone your Spotify playlists into a
+                            YouTube account. Then grab those shiny new YouTube links!</p>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2><span class="number-badge">5</span> Map The Stars</h2>
+                    <p>Once your new site is live, simply visit it and click the <strong>⚙️ EDIT PLAYLISTS</strong>
+                        button in the top right.</p>
+                    <p>Paste your YouTube links into the text box, hit Commit, and in exactly 3 minutes... your galaxy
+                        is born!</p>
+                </section>
+            </div>
+</body>
+
+</html>

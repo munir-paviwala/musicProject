@@ -1,8 +1,9 @@
-MUNIR'S MUSIC GALLERY
+MUSIC GALAXY ENGINE
 =====================
-Created by Munirmahedi Paviwala. 
+Original Framework and Engine by Munir Paviwala.
+(Customized by the Repository Owner)
 
-TLDR: I made this for fun and not charging any money or anything. Enjoy enjoy. Details of copyright and stuff below.
+TLDR: This is a free, open-source tool for curating music. Details on compliance below.
 
 ---
 DISCLAIMER & COPYRIGHT WARNING

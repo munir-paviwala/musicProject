@@ -1,0 +1,33 @@
+# Add your YouTube Playlist URLs below (one per line).
+# The GitHub Action will automatically fetch the songs and rebuild your galaxy map.
+# Empty lines and lines starting with # are ignored.
+
+https://www.youtube.com/playlist?list=PLkyLhAV5zhSBGCKDkyzH2xPG8n8wTALYS
+http://www.youtube.com/playlist?list=PLkyLhAV5zhSAr1gjNZk2r9duUFTrxQa-X
+https://www.youtube.com/playlist?list=PLkyLhAV5zhSCukdKOrzwxrDXIPJAiLlqq
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSCSKrAM6aSD_2TNUF2AsI2g&si=6zzjTWV1fJ-QefHS
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSAYkJOHb852CjN2tNDFurdL&si=7CciigG9Ifd4W8Ed
+https://music.youtube.com/playlist?list=PLZehTKibbEcEMpQB7WgR0Uh_CSirRX1ja&si=Li74pdbdp_vTEHZn
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSBcrqJunwQIDK7QxSy7dFGK&si=8ezJjQbx4_4j7arl
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSBVGFbiZh_msq7G7fVM6TXD&si=4Dfdq71tq37hEpMI
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSC-1UJQViUJSW057pUmH18i&si=vUyRmGgHkhC4Ibp-
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSBRaZRJKVH2k6YBgjF_viTn&si=HU0wT7_LUYR4tT5c
+https://music.youtube.com/playlist?list=PLRTR_fq5UxiC_MqixiStekfUistRTJByr&si=_12bC-qHVLt0IccJ
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSBWCQrZuFSMtDHdEJw5XaCE&si=e3GAKmDnvMNyZkEx
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSA_A9uEnTQfBLp8ve2YYVnn&si=YxviSycZqa8sb7yE
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSBBex2ggQQ-5o-ZPVmc2byx&si=VcWRw5vs-xBb0x1K
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSCbkHj8JMZhGzhppILtMs3J&si=NOtE6kWSjY2gBbD_
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSB7fQGDSnmaiIJBUdzW-5F5&si=r1DfFBpgUQSPbUkd
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSDN7SjlOc1aWXrH5gXdYjZm&si=rTsr8A2nHzKwFH3-
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSCJUWYqvvGNTsawXcqRQbGp&si=KBaz8DBE1eaNX1F7
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSAnGpzLCdtGMZ6mRDBpPY20&si=ZhWT3AtgAzICeRmD
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSCiQZsEeEg0Y--XMyZ4ErzE&si=vYJnRF0xIr1u44b2
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSBcuQPJHYaWLSyhAlZGr06A&si=6ZIx2ncRWw8VDFQR
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSBVROXSM3evk8U3HFAVYHi8&si=EVjQ86oqlQCXPPmC
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSBMGNCAAMNNePvsCmFMq6dj&si=tqn-P9zCMJO2Yj5h
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSAaV5dv55kHyd-lXNK3aA41&si=7MPCcvuXZ33C9Sb4
+https://music.youtube.com/playlist?list=PLlLBDf5H0BELd1bgHBZ3hGIKWsg4AvvoT&si=A9MB-sJhjaNYHFRn
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSBoUIjoFxVOZMJzx9bO4ht_&si=o4mgMawfV7WVr_xo
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSDi9bhn9hqDiZyrEcbzLZsE&si=iQJ-TEEGZiaunq5j
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSBl95Z7-YcPCt07fEHQGEsj&si=qHKFUkG70BkQ3RSu
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSBDJ-8NluicQlSqMoSLieXz&si=Lz_vBehChsOysoPH
