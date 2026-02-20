@@ -243,6 +243,55 @@
             pointer-events: auto;
         }
 
+        /* === PLACARD UI === */
+        #placard-overlay {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            max-width: 600px;
+            width: 80%;
+            background: rgba(15, 20, 25, 0.95);
+            border: 2px solid #536DFE;
+            box-shadow: 0 0 20px rgba(83, 109, 254, 0.4), inset 0 0 10px rgba(0, 0, 0, 0.8);
+            border-radius: 12px;
+            padding: 20px 30px;
+            color: #fff;
+            z-index: 85;
+            /* Below now-playing */
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-align: center;
+        }
+
+        #placard-overlay.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+
+        #placard-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            color: #00E5FF;
+            margin: 0;
+            text-shadow: 2px 2px 0 #000;
+            text-transform: uppercase;
+        }
+
+        #placard-desc {
+            font-family: 'Helvetica Neue', sans-serif;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #ddd;
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
         /* === START SCREEN === */
         #start-screen {
             position: fixed;
@@ -583,9 +632,25 @@
                 </button>
             </div>
 
-            <!-- STEP 4: SAVE -->
+            <!-- STEP 4: CURATOR NOTES -->
             <div class="admin-section">
-                <span class="admin-label">4. Save Changes</span>
+                <span class="admin-label">4. Curator Notes</span>
+                <p style="font-size: 0.85em; color: #8b949e; margin-bottom: 10px;">
+                    Add descriptions to your clusters for the placards.
+                </p>
+                <button id="btn-edit-notes" class="btn"
+                    style="width:100%; margin-bottom:10px; border-color:#536DFE; color:#536DFE;">
+                    📝 Edit Notes
+                </button>
+                <div id="notes-editor-container"
+                    style="display:none; flex-direction:column; gap:10px; margin-bottom:10px; border: 1px solid #30363d; padding: 10px; border-radius: 6px; background: #000; max-height: 300px; overflow-y: auto;">
+                    <!-- Dynamically populated textarea inputs -->
+                </div>
+            </div>
+
+            <!-- STEP 5: SAVE -->
+            <div class="admin-section">
+                <span class="admin-label">5. Save Changes</span>
                 <button id="btn-export" class="btn" style="width:100%;">📋 Copy 'data.json'</button>
                 <p style="font-size: 0.8em; color: #8b949e; margin-top: 8px;">
                     Copy this and overwrite your local <code>data.json</code> file on GitHub to save permanently.
@@ -610,6 +675,13 @@
 
     <div id="video-dock">
         <div id="yt-player-wrapper"></div>
+    </div>
+
+    <!-- === PLACARD UI === -->
+    <div id="placard-overlay">
+        <h2 id="placard-title">Cluster Title</h2>
+        <p id="placard-desc">Cluster description goes here. It provides curatorial context about the songs in this
+            neighborhood.</p>
     </div>
 
     <canvas id="canvas"></canvas>
@@ -663,6 +735,8 @@
         let isAutopilot = false;
         let autopilotState = "IDLE";
         let autopilotIndex = 1;
+
+        let currentPlacard = null; // Track currently displayed placard
 
         // ==========================================
         // 3. CLUSTERING ENGINE (From index.html)
@@ -834,6 +908,7 @@
                 appState.playlists = data.playlists;
                 if (data.anchors) {
                     appState.anchors = data.anchors;
+
                     // Flatten songs if anchors exist (assume already clustered)
                     appState.songs = [];
                     appState.playlists.forEach(p => { if (p.songs) appState.songs.push(...p.songs); });
@@ -845,6 +920,11 @@
             if (appState.songs.length === 0) {
                 alert("No music found! Use the Manage panel to import seeded data.");
                 document.getElementById('admin-panel').classList.add('open');
+            } else if (appState.anchors && appState.anchors.length > 0) {
+                // Randomly spawn the player at one of the cluster centers
+                let randomAnchor = appState.anchors[Math.floor(Math.random() * appState.anchors.length)];
+                player.x = randomAnchor.x;
+                player.y = randomAnchor.y;
             }
         }
 
@@ -929,6 +1009,54 @@
                 }, 2000);
             }
         }
+
+        // === ADMIN PANEL LOGIC ===
+
+        // Handle btn-edit-notes
+        document.getElementById('btn-edit-notes').onclick = () => {
+            const container = document.getElementById('notes-editor-container');
+            const btn = document.getElementById('btn-edit-notes');
+
+            if (container.style.display === 'none') {
+                container.style.display = 'flex';
+                btn.innerText = "❌ Close Notes Editor";
+                container.innerHTML = ""; // Clear existing
+
+                if (!appState.anchors || appState.anchors.length === 0) {
+                    container.innerHTML = "<span style='color:#ff8888;font-size:0.8em;'>No clusters available. Please import data first.</span>";
+                    return;
+                }
+
+                appState.anchors.forEach((anchor, index) => {
+                    let div = document.createElement('div');
+                    let label = document.createElement('label');
+                    label.innerText = anchor.name;
+                    label.style.color = anchor.color || "#ccc";
+                    label.style.fontSize = "0.85em";
+                    label.style.fontWeight = "bold";
+
+                    let textarea = document.createElement('textarea');
+                    textarea.className = "code-box";
+                    textarea.style.height = "60px";
+                    textarea.style.marginTop = "5px";
+                    textarea.style.color = "#fff";
+                    textarea.placeholder = "Write curator notes here...";
+                    textarea.value = anchor.description || "";
+
+                    textarea.addEventListener('input', (e) => {
+                        appState.anchors[index].description = e.target.value;
+                        saveToLocalStorage(); // Auto-save locally
+                    });
+
+                    div.appendChild(label);
+                    div.appendChild(textarea);
+                    container.appendChild(div);
+                });
+            } else {
+                container.style.display = 'none';
+                btn.innerText = "📝 Edit Notes";
+            }
+        };
 
         document.getElementById('btn-export').onclick = () => {
             let exportData = { playlists: appState.playlists, anchors: appState.anchors };
@@ -1069,7 +1197,7 @@
                 isAutopilot = true; autopilotIndex = 0; autopilotState = "LISTENING";
                 document.getElementById('np-status').style.display = "block";
                 document.getElementById('np-status').innerText = "TOUR QUEUED: Waiting for current song...";
-                document.getElementById('skip-btn').style.display = 'none';
+                document.getElementById('skip-btn').style.display = 'flex';
             } else {
                 // Not playing. Move to first point.
                 isAutopilot = true; autopilotIndex = 0; autopilotState = "MOVING";
@@ -1176,12 +1304,38 @@
 
             // Draw Anchors (Galaxy centers)
             ctx.globalCompositeOperation = "lighter";
+            let closestAnchor = null;
+            let closestAnchorDist = Infinity;
+
             appState.anchors.forEach(a => {
                 let grad = ctx.createRadialGradient(a.x, a.y, 0, a.x, a.y, a.radius);
                 grad.addColorStop(0, a.color); grad.addColorStop(1, "rgba(0,0,0,0)");
                 ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(a.x, a.y, a.radius, 0, Math.PI * 2); ctx.fill();
+
+                // Check distance to player for placard
+                let distToAnchor = Math.hypot(player.x - a.x, player.y - a.y);
+                if (distToAnchor < a.radius * 0.4 && distToAnchor < closestAnchorDist) {
+                    closestAnchor = a;
+                    closestAnchorDist = distToAnchor;
+                }
             });
             ctx.globalCompositeOperation = "source-over";
+
+            // Update Placard UI
+            const placardEl = document.getElementById('placard-overlay');
+            if (closestAnchor && closestAnchor.description) {
+                if (currentPlacard !== closestAnchor.id) {
+                    currentPlacard = closestAnchor.id;
+                    document.getElementById('placard-title').innerText = closestAnchor.name;
+                    document.getElementById('placard-desc').innerText = closestAnchor.description;
+                    placardEl.classList.add('visible');
+                }
+            } else {
+                if (currentPlacard !== null) {
+                    currentPlacard = null;
+                    placardEl.classList.remove('visible');
+                }
+            }
 
             // Trace
             if (pathHistory.length > 1) {
@@ -1390,11 +1544,11 @@
         let introStep = 0;
         const steps = [
             {
-                text: "Hello there! Welcome to the world of MUSICAL GALAXY!\n\nI am Munir. \n\nI am your guide in this neighborhood.",
+                text: "Hello there! Welcome to my MUSICAL GALAXY!\n\nI am Munir. \n\nI am your guide in this neighborhood.",
                 pose: "bounce"
             },
             {
-                text: "This world is inhabited by bubbles called... SONGS.\n\nThey float around in clusters. \n\nWalk up to them to hear their sound!",
+                text: "This world is inhabited by bubbles called... SONGS.\n\nThey float around in clusters. \n\nWalk up to them to hear them!",
                 pose: "normal"
             },
             {
@@ -1406,7 +1560,7 @@
                 action: "repo_link"
             },
             {
-                text: "Alright! Your journey is about to begin.\n\nAre you ready to enter the Gallery?",
+                text: "Alright! Your journey is about to begin.\n\nYou will spawn at a random location in the map.\n\nEnjoy exploring the musical galaxy!",
                 action: "start_choice"
             }
         ];
