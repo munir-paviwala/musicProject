@@ -559,7 +559,10 @@
         <div id="credits-box">
             <h3 style="font-family: 'Press Start 2P'; margin-top: 0;">CREDITS</h3>
             <div id="credits-content">Loading...</div>
-            <button id="credits-close-btn" onclick="closeCredits()">CLOSE</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                <button onclick="window.location.href='setup.html'" style="background: none; border: none; font-family: 'Press Start 2P', cursive; font-size: 10px; cursor: pointer; text-decoration: underline; color: #333;">🔧 Build Your Own</button>
+                <button id="credits-close-btn" onclick="closeCredits()">CLOSE</button>
+            </div>
         </div>
     </div>
 
@@ -582,11 +585,11 @@
 
     <!-- === PERSISTENT BOTTOM BAR === -->
     <div id="bottom-bar">
-        <button class="bottom-link" onclick="showWelcomeCard()">ℹ️ How to Play</button>
-        <span style="color:rgba(255,255,255,0.15); font-size:10px;">|</span>
         <button class="bottom-link" onclick="showCredits()">© Credits</button>
         <span style="color:rgba(255,255,255,0.15); font-size:10px;">|</span>
         <a class="bottom-link" href="https://github.com/munir-paviwala/musicForAll" target="_blank">Original Engine</a>
+        <span style="color:rgba(255,255,255,0.15); font-size:10px;">|</span>
+        <button class="bottom-link" onclick="window.location.href='setup.html'">🔧 Build Your Own</button>
     </div>
 
     <!-- === MAIN CANVAS (Hidden initially) === -->
@@ -1437,6 +1440,7 @@
         function toWorld(sx, sy) { const cx = canvas.width / 2; const cy = canvas.height / 2; return { x: (sx - cx) / camera.zoom + player.x, y: (sy - cy) / camera.zoom + player.y }; }
 
         function handlePointerDown(x, y) {
+            if (uiContainer.classList.contains('ui-idle')) return; // Just wake up UI, don't interact
             mouse.dragging = true; mouse.x = x; mouse.y = y;
             if (isAutopilot) toggleAutopilot();
         }
