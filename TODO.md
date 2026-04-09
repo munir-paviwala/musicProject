@@ -1,5 +1,5 @@
+The edit playlist button has a blue hue. JUST MAKE IT NORMAL?   
 
-[] Maybe some refining of the intro (and or an option to have defualt not show that if you have opened once for the day or something, with cookies or whatever smart features?)
 
 
 
@@ -26,3 +26,4 @@ Dropped:
 [] Functionality of the bookmarklet - not working and not sure if this is going to work? Or are there better options? Using github actions? Or something else, that can provide some computation that is easy to run and doesn't take the user to spend a lot of time coding or dealing with code. 
 [] Locking option to just explore the bubbles beyond the current one? - reason: defies the core of exploration by listening.
 [] Make your own path of music playlist to play? (defies the purpose of exploration/spontaneity)
+[] Maybe some refining of the intro (and or an option to have defualt not show that if you have opened once for the day or something, with cookies or whatever smart features?) - post it note takes care of this.
