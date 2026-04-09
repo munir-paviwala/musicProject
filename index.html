@@ -21,10 +21,16 @@
 
         #canvas {
             display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             cursor: grab;
             touch-action: none;
             -webkit-user-select: none;
             user-select: none;
+            z-index: 0;
         }
 
         #canvas:active {
@@ -319,148 +325,174 @@
             font-weight: bold;
             border: none;
         }
-    </style>
-    <!-- === GOOGLE FONTS (Retro) === -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <style>
-        /* ... existing styles ... */
 
-        /* === GAMIFIED INTRO CSS === */
-        #intro-layer {
+        /* === IDLE UI HIDING === */
+        body.ui-idle #journey-panel,
+        body.ui-idle #top-right-controls,
+        body.ui-idle #info-toggle {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #journey-panel,
+        #top-right-controls,
+        #info-toggle {
+            transition: opacity 0.5s ease;
+        }
+    </style>
+    <!-- === GOOGLE FONTS === -->
+    <!-- Press Start 2P for retro UI, Caveat for the handwritten sticky note -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Caveat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* === WELCOME STICKY NOTE === */
+        #welcome-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1a0b2e 0%, #000000 100%);
+            inset: 0;
+            background: rgba(0, 0, 0, 0.52);
             z-index: 2000;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-family: 'Press Start 2P', cursive;
+            transition: opacity 0.6s ease;
         }
 
-        #intro-scene {
-            width: 80%;
-            max-width: 800px;
-            height: 70%;
-            position: relative;
+        #welcome-overlay.fading {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #welcome-card {
+            background: #fef9e7;
+            transform: rotate(-1.5deg);
+            border-radius: 4px;
+            padding: 32px 38px 28px;
+            max-width: 400px;
+            width: 88%;
+            box-shadow: 4px 6px 24px rgba(0, 0, 0, 0.55), 2px 2px 0 rgba(0, 0, 0, 0.08);
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
-            align-items: center;
+            gap: 12px;
+            animation: noteIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-family: 'Caveat', cursive;
+            background-image: repeating-linear-gradient(transparent, transparent 31px,
+                    rgba(180, 160, 120, 0.22) 31px, rgba(180, 160, 120, 0.22) 32px);
+            line-height: 32px;
         }
 
-        /* Professor/Guide Character */
-        #guide-char {
-            width: 250px;
-            height: 250px;
-            background-repeat: no-repeat;
-            background-position: center bottom;
-            background-size: contain;
-            image-rendering: pixelated;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 0 10px white);
+        @keyframes noteIn {
+            from {
+                transform: rotate(-1.5deg) scale(0.88) translateY(16px);
+                opacity: 0;
+            }
+
+            to {
+                transform: rotate(-1.5deg) scale(1) translateY(0);
+                opacity: 1;
+            }
         }
 
-        /* Dialogue Box */
-        #dialogue-box {
-            width: 100%;
-            background: #fff;
-            border: 4px solid #333;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 8px 8px 0 #222;
-            position: relative;
-            min-height: 150px;
-        }
-
-        #dialogue-text {
-            color: #000;
-            font-size: 14px;
-            line-height: 1.8;
+        #welcome-card .wc-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #3a2a0a;
             margin: 0;
-            white-space: pre-wrap;
+            line-height: 1.2;
         }
 
-        #next-arrow {
-            position: absolute;
-            bottom: 10px;
-            right: 15px;
-            width: 0;
-            height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-top: 10px solid #f00;
-            animation: bounce 0.8s infinite;
-            cursor: pointer;
-            display: none;
+        #welcome-card .wc-body {
+            font-size: 20px;
+            color: #5a4020;
+            margin: 0;
+            line-height: 1.55;
         }
 
-        @keyframes bounce {
-            0% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(5px);
-            }
-
-            100% {
-                transform: translateY(0);
-            }
+        #welcome-card .wc-controls {
+            font-size: 16px;
+            color: #8a6840;
+            margin: 0;
         }
 
-        /* Skip Button */
-        #skip-btn-intro {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: transparent;
-            color: #666;
+        .wc-go-btn {
+            align-self: flex-start;
+            background: none;
             border: none;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 10px;
+            font-family: 'Caveat', cursive;
+            font-size: 22px;
+            font-weight: 700;
+            color: #c0392b;
             cursor: pointer;
-            text-transform: uppercase;
+            padding: 0;
+            text-decoration: underline;
+            text-decoration-style: wavy;
+            text-underline-offset: 4px;
+            transition: color 0.2s, transform 0.15s;
+            line-height: 32px;
         }
 
-        #skip-btn-intro:hover {
-            color: #fff;
+        .wc-go-btn:hover {
+            color: #e74c3c;
+            transform: scale(1.05);
         }
 
-        /* Actions Container */
-        #intro-actions {
-            margin-top: 15px;
-            display: none;
-            gap: 10px;
-            justify-content: center;
-            width: 100%;
-        }
-
-        .action-btn {
-            background: #238636;
-            color: white;
-            border: 2px solid #000;
-            padding: 10px 15px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 10px;
+        .wc-own-link {
+            font-size: 15px;
+            color: #a08050;
             cursor: pointer;
-            box-shadow: 4px 4px 0 #000;
+            background: none;
+            border: none;
+            font-family: 'Caveat', cursive;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-underline-offset: 3px;
+            padding: 0;
+            line-height: 32px;
+            transition: color 0.2s;
         }
 
-        .action-btn:hover {
-            transform: translateY(2px);
-            box-shadow: 2px 2px 0 #000;
+        .wc-own-link:hover {
+            color: #6a4020;
         }
 
-        .action-btn.secondary {
-            background: #0088ff;
+        .wc-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 4px;
         }
 
-        #avatar-upload {
-            display: none;
+        /* === PERSISTENT BOTTOM BAR === */
+        #bottom-bar {
+            position: fixed;
+            bottom: 16px;
+            left: 20px;
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            z-index: 10;
+            pointer-events: auto;
+            transition: opacity 0.5s ease;
+        }
+
+        body.ui-idle #bottom-bar {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .bottom-link {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 11px;
+            text-decoration: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: color 0.2s;
+        }
+
+        .bottom-link:hover {
+            color: rgba(255, 255, 255, 0.7);
         }
 
         /* CREDITS MODAL */
@@ -494,13 +526,11 @@
             flex: 1;
             overflow-y: auto;
             font-family: 'Courier New', monospace;
-            /* Monospace for alignment */
             font-size: 12px;
             white-space: pre-wrap;
             color: #000;
             margin-bottom: 20px;
             border: 1px solid #ccc;
-            /* Inner border */
             padding: 10px;
         }
 
@@ -533,63 +563,52 @@
         </div>
     </div>
 
-    <!-- === GAMIFIED INTRO LAYER === -->
-    <div id="intro-layer">
-        <div id="intro-scene">
-            <div id="guide-char"></div>
-            <div id="dialogue-box">
-                <p id="dialogue-text"></p>
-                <div id="next-arrow" onclick="nextIntroStep()"></div>
-
-                <!-- Action Buttons (Hidden by default) -->
-                <div id="intro-actions">
-                    <button class="action-btn" id="act-btn-1">YES</button>
-                    <button class="action-btn secondary" id="act-btn-2">NO</button>
-                </div>
+    <!-- === WELCOME STICKY NOTE === -->
+    <div id="welcome-overlay">
+        <div id="welcome-card">
+            <p class="wc-title">Hello Hello! You found Munir's music map :)</p>
+            <p class="wc-body">
+                songs float around as bubbles<br>
+                walk into one to hear it &nbsp;✦<br>
+                drag around to wander freely
+            </p>
+            <p class="wc-controls">scroll to zoom</p>
+            <div class="wc-footer">
+                <button class="wc-go-btn" onclick="endIntro()">let's go →</button>
+                <button class="wc-own-link" onclick="window.location.href='setup.html'">make your own?</button>
             </div>
         </div>
-
-        <!-- Top Right Credits -->
-        <button id="credits-btn-intro" onclick="showCredits()"
-            style="position: absolute; top: 20px; right: 20px; background: transparent; color: #666; border: none; font-family: 'Press Start 2P', cursive; font-size: 10px; cursor: pointer; z-index: 2001;">[CREDITS]</button>
-
-        <!-- Bottom Right Skip -->
-        <button id="skip-btn-intro" onclick="endIntro()"
-            style="position: absolute; bottom: 20px; right: 20px; background: transparent; color: #666; border: none; font-family: 'Press Start 2P', cursive; font-size: 10px; cursor: pointer;">[SKIP
-            INTRO]</button>
-
-        <!-- Original Creator Attribution -->
-        <a href="https://github.com/munir-paviwala/musicForAll" target="_blank"
-            style="position: absolute; bottom: 20px; left: 20px; color: #444; text-decoration: none; font-family: 'Press Start 2P', cursive; font-size: 8px; z-index: 2000; text-transform: uppercase;">Original
-            Engine by Munir Paviwala</a>
     </div>
 
-    <!-- Hidden Avatar Input -->
-    <input type="file" id="avatar-upload" accept="image/*">
+    <!-- === PERSISTENT BOTTOM BAR === -->
+    <div id="bottom-bar">
+        <button class="bottom-link" onclick="showWelcomeCard()">ℹ️ How to Play</button>
+        <span style="color:rgba(255,255,255,0.15); font-size:10px;">|</span>
+        <button class="bottom-link" onclick="showCredits()">© Credits</button>
+        <span style="color:rgba(255,255,255,0.15); font-size:10px;">|</span>
+        <a class="bottom-link" href="https://github.com/munir-paviwala/musicForAll" target="_blank">Original Engine</a>
+    </div>
 
     <!-- === MAIN CANVAS (Hidden initially) === -->
     <canvas id="canvas"></canvas>
 
-    <!-- === TOP BAR & CONTROLS === -->
-    <!-- === TOP BAR & CONTROLS === -->
+    <!-- === TOP LEFT INFO BUTTON === -->
     <button id="info-toggle"
         style="position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 16px; border-radius: 20px; cursor: pointer; backdrop-filter: blur(5px); z-index: 10; pointer-events: auto;">ℹ️
-        Replay Intro</button>
+        How to Play</button>
 
-    <button id="btn-admin-toggle" class="btn" style="position: absolute; top: 20px; right: 20px; z-index: 10;">⚙️ Manage
-        Data</button>
+    <div id="top-right-controls"
+        style="position: absolute; top: 20px; right: 20px; z-index: 10; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; pointer-events: none;">
+        <button id="btn-admin-toggle" class="btn" style="pointer-events: auto;">⚙️ Manage Data</button>
 
-    <a id="btn-magic-edit" class="btn"
-        style="position: absolute; top: 60px; right: 20px; z-index: 10; color: #00E5FF; border-color: #00E5FF; text-decoration: none;"
-        target="_blank">⚙️ Edit Playlists</a>
+        <a id="btn-magic-edit" class="btn"
+            style="color: #00E5FF; border-color: #00E5FF; text-decoration: none; pointer-events: auto;"
+            target="_blank">⚙️ Edit Playlists</a>
+    </div>
 
     <script>
         document.getElementById('info-toggle').addEventListener('click', () => {
-            // Restart Intro
-            introStep = 0;
-            document.getElementById('intro-layer').style.display = 'flex';
-            document.getElementById('intro-layer').style.opacity = 1;
-            nextIntroStep();
+            showWelcomeCard();
         });
 
         // Setup Magic Edit Button
@@ -611,13 +630,12 @@
 
     <!-- === JOURNEY PANEL === -->
     <div id="journey-panel">
-        <button class="journey-btn" onclick="startRandomJourney()">🎲 Guide Me Somewhere</button>
-        <button class="journey-btn" onclick="startNeighborhoodJourney()">🏘️ Explore Neighborhood</button>
-        <button id="auto-btn" class="journey-btn" onclick="toggleAutopilot()">▶ Start Tour</button>
-        <button id="skip-btn" class="journey-btn" onclick="forceNextSong()">⏭ Skip to Next</button>
-        <button class="journey-btn" onclick="clearTrace()">🧹 Erase Trace</button>
+        <button class="journey-btn" onclick="startRandomJourney()">🌌 Wander Somewhere</button>
+        <button class="journey-btn" onclick="startNeighborhoodJourney()">🎶 Linger Here</button>
+        <button id="auto-btn" class="journey-btn" onclick="toggleAutopilot()">▶ Let It Flow</button>
+        <button id="skip-btn" class="journey-btn" onclick="forceNextSong()">⏭ Next Stop</button>
         <button class="journey-btn" onclick="clearGuide()" id="clear-guide-btn"
-            style="display:none; border-color: #ff4444; color: #ff8888;">❌ Stop Guide</button>
+            style="display:none; border-color: #ff4444; color: #ff8888;">✕ End Journey</button>
     </div>
 
     <!-- === ADMIN PANEL (From index.html) === -->
@@ -691,9 +709,8 @@
             neighborhood.</p>
     </div>
 
-    <canvas id="canvas"></canvas>
-
     <script src="https://www.youtube.com/iframe_api"></script>
+
 
     <script>
         // ==========================================
@@ -1052,6 +1069,7 @@
         // 5. JOURNEY & PATHFINDING
         // ==========================================
         function startRandomJourney() {
+            activeAlgorithm = 'random';
             let songs = appState.songs;
             if (songs.length < 2) return alert("Need more songs!");
 
@@ -1099,6 +1117,7 @@
         }
 
         function startNeighborhoodJourney() {
+            activeAlgorithm = 'neighborhood';
             let songs = appState.songs;
             let startSong;
             // Radius 2500 for large clusters
@@ -1168,15 +1187,18 @@
             camera.targetZoom = 0.6; // Slightly zoomed out for view
         }
 
+        // Tracks which algorithm is currently running so we can re-generate at the end
+        let activeAlgorithm = null; // 'random' | 'neighborhood'
+
         function toggleAutopilot() {
             if (!guidePath) return;
             isAutopilot = !isAutopilot;
-            document.getElementById('auto-btn').innerText = isAutopilot ? "⏸ Pause Tour" : "▶ Start Tour";
+            document.getElementById('auto-btn').innerText = isAutopilot ? "⏸ Pause" : "▶ Let It Flow";
             if (isAutopilot) {
                 if (currentSongId) {
                     autopilotState = "LISTENING";
                     document.getElementById('np-status').style.display = "block";
-                    document.getElementById('np-status').innerText = "AUTOPILOT: LISTENING...";
+                    document.getElementById('np-status').innerText = "DRIFTING...";
                     document.getElementById('skip-btn').style.display = 'flex';
                 } else { autopilotState = "MOVING"; }
                 camera.targetZoom = 0.8;
@@ -1187,10 +1209,19 @@
         }
 
         function forceNextSong() {
-            if (!isAutopilot) return;
+            // Works whenever a guidePath is active (whether autopilot is playing or user manually skips)
+            if (!guidePath) return;
             stopSong(); currentSongId = null; autopilotIndex++;
-            if (autopilotIndex >= guidePath.length) { clearGuide(); }
-            else {
+            if (autopilotIndex >= guidePath.length) {
+                // Path ended — silently re-run the same algorithm for an endless feel
+                if (activeAlgorithm === 'random') {
+                    startRandomJourney();
+                } else if (activeAlgorithm === 'neighborhood') {
+                    startNeighborhoodJourney();
+                } else {
+                    clearGuide();
+                }
+            } else {
                 autopilotState = "MOVING";
                 document.getElementById('skip-btn').style.display = 'flex';
                 document.getElementById('np-status').innerText = "MOVING TO NEXT STOP...";
@@ -1198,14 +1229,14 @@
         }
 
         function clearGuide() {
-            guidePath = null; guideTarget = null; isAutopilot = false;
+            guidePath = null; guideTarget = null; isAutopilot = false; activeAlgorithm = null;
             document.getElementById('clear-guide-btn').style.display = 'none';
             document.getElementById('auto-btn').style.display = 'none';
             document.getElementById('skip-btn').style.display = 'none';
-            document.getElementById('auto-btn').innerText = "▶ Start Tour";
+            document.getElementById('auto-btn').innerText = "▶ Let It Flow";
             document.getElementById('np-status').style.display = 'none';
-        }
-        function clearTrace() { pathHistory = []; }
+            updateMediaSession(false);
+        } function clearTrace() { pathHistory = []; }
 
         // ==========================================
         // 6. RENDERER (From 22DecTry)
@@ -1366,15 +1397,11 @@
 
             if (!touching && currentSongId && !isAutopilot) { stopSong(); currentSongId = null; }
 
-            // Player & Fog
-            if (playerImg && playerImg.complete && playerImg.naturalWidth !== 0) {
-                // Draw Sprite
-                let size = player.size * 5; // Good size for pixel art
-                ctx.imageSmoothingEnabled = false; // Keep pixels sharp
-                ctx.drawImage(playerImg, player.x - size / 2, player.y - size / 2, size, size);
-            } else {
-                ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2); ctx.fill();
-            }
+            // Player dot
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+            ctx.fill();
 
             ctx.restore();
         }
@@ -1385,7 +1412,27 @@
             if (isAutopilot && (e.key === 'w' || e.key === 'a' || e.key === 's' || e.key === 'd')) toggleAutopilot();
         });
         window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
-        window.addEventListener('wheel', e => { e.preventDefault(); camera.targetZoom = Math.max(0.2, Math.min(3.0, camera.targetZoom - e.deltaY * 0.001)); }, { passive: false });
+
+        function getMinZoom() {
+            if (!appState.anchors || appState.anchors.length === 0) return 0.2;
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            appState.anchors.forEach(a => {
+                let r = a.radius || 200;
+                if (a.x - r < minX) minX = a.x - r;
+                if (a.y - r < minY) minY = a.y - r;
+                if (a.x + r > maxX) maxX = a.x + r;
+                if (a.y + r > maxY) maxY = a.y + r;
+            });
+            let w = maxX - minX;
+            let h = maxY - minY;
+            if (w <= 0 || h <= 0) return 0.2;
+            w *= 1.2;
+            h *= 1.2;
+            let calcZoom = Math.min(canvas.width / w, canvas.height / h);
+            return Math.min(0.5, Math.max(0.05, calcZoom));
+        }
+
+        window.addEventListener('wheel', e => { e.preventDefault(); camera.targetZoom = Math.max(getMinZoom(), Math.min(3.0, camera.targetZoom - e.deltaY * 0.001)); }, { passive: false });
 
         function toWorld(sx, sy) { const cx = canvas.width / 2; const cy = canvas.height / 2; return { x: (sx - cx) / camera.zoom + player.x, y: (sy - cy) / camera.zoom + player.y }; }
 
@@ -1398,9 +1445,16 @@
             if (mouse.dragging) { player.x -= dx / camera.zoom; player.y -= dy / camera.zoom; }
         }
         function handlePointerUp() { mouse.dragging = false; }
+        // F9 / Media Key fallback — direct keyboard listener (works even when YouTube iframe has focus)
+        window.addEventListener('keydown', e => {
+            if (e.key === 'F9' || e.key === 'MediaTrackNext') {
+                e.preventDefault();
+                forceNextSong();
+            }
+        });
 
-        canvas.addEventListener('mousedown', e => handlePointerDown(e.clientX, e.clientY));
         window.addEventListener('mouseup', handlePointerUp);
+        canvas.addEventListener('mousedown', e => handlePointerDown(e.clientX, e.clientY));
         canvas.addEventListener('mousemove', e => handlePointerMove(e.clientX, e.clientY));
 
         // Touch
@@ -1425,7 +1479,7 @@
                 const dx = e.touches[0].clientX - e.touches[1].clientX;
                 const dy = e.touches[0].clientY - e.touches[1].clientY;
                 const newPinchDistance = Math.sqrt(dx * dx + dy * dy);
-                camera.targetZoom = Math.max(0.2, Math.min(3.0, camera.targetZoom * (newPinchDistance / mouse.pinchDistance)));
+                camera.targetZoom = Math.max(getMinZoom(), Math.min(3.0, camera.targetZoom * (newPinchDistance / mouse.pinchDistance)));
                 mouse.pinchDistance = newPinchDistance;
             } else if (e.touches.length === 1) {
                 handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
@@ -1469,6 +1523,19 @@
             if (isAutopilot) setTimeout(() => forceNextSong(), 1500);
         }
 
+        function updateMediaSession(active) {
+            if (!('mediaSession' in navigator)) return;
+            // Only hook next-track when an algorithm path is actually running
+            if (active && guidePath) {
+                navigator.mediaSession.setActionHandler('nexttrack', () => forceNextSong());
+                // Explicitly clear previous-track so it doesn't do anything confusing
+                navigator.mediaSession.setActionHandler('previoustrack', null);
+            } else {
+                // No active path — release next-track so headphones/keyboard behave normally
+                navigator.mediaSession.setActionHandler('nexttrack', null);
+            }
+        }
+
         function playSong(song) {
             if (!playerInstance || !playerInstance.loadVideoById) return;
             if (song.status === 'error') return;
@@ -1477,6 +1544,14 @@
             document.getElementById('np-title').innerText = song.title;
             document.getElementById('np-note').innerText = song.note || "";
             document.getElementById('now-playing').style.display = "block";
+            // Update OS media session so F9 / media keys / lock screen work
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: song.title,
+                    artist: song.note || 'Music Galaxy'
+                });
+                updateMediaSession(true);
+            }
         }
 
         function stopSong() {
@@ -1486,198 +1561,38 @@
         }
 
         // ==========================================
-        // 9. GAMIFIED INTRO LOGIC
+        // 9. INTRO / WELCOME LOGIC
         // ==========================================
-        const introText = document.getElementById('dialogue-text');
-        const nextArrow = document.getElementById('next-arrow');
-        const actionBox = document.getElementById('intro-actions');
-        const guideChar = document.getElementById('guide-char');
 
-        // Character Sprite
-        // We will look for a local file first.
-        let userAvatar = 'assets/avatar.gif';
-        let playerImg = new Image();
-        playerImg.src = userAvatar;
-        // Fallback or verify load
-        playerImg.onerror = () => {
-            // If local fails, maybe use a placeholder or just keep circle
-            console.log("Custom avatar not found, using default circle");
-            playerImg = null;
-        };
-
-        // Initial intro setup
-        guideChar.style.backgroundImage = `url('${userAvatar}')`;
-
-        let introStep = 0;
-        const steps = [
-            {
-                text: typeof CONFIG !== 'undefined' ? CONFIG.introText : "Hello there! Welcome to my MUSICAL GALAXY!\n\nI am Munir. \n\nI am your guide in this neighborhood.",
-                pose: "bounce"
-            },
-            {
-                text: "This world is inhabited by bubbles called... SONGS.\n\nThey float around in clusters. \n\nWalk up to them to hear them!",
-                pose: "normal"
-            },
-            {
-                text: "NAVIGATING IS EASY!\n\nUse [W, A, S, D] to move your character.\nUse your Mouse to drag the camera view.\n\nDragging also moves you on Touch Screens!",
-                pose: "normal"
-            },
-            {
-                text: "Alright! Your journey is about to begin.\n\nYou can explore this galaxy now, or choose to build your own!",
-                action: "start_choice"
-            }
-        ];
+        function showWelcomeCard() {
+            const overlay = document.getElementById('welcome-overlay');
+            overlay.classList.remove('fading');
+            overlay.style.display = 'flex';
+        }
 
         // Credits Logic
         async function showCredits() {
-            console.log("Attempting to load credits...");
             try {
                 const response = await fetch('assets/credits.txt');
-                console.log("Fetch response:", response.status);
                 if (!response.ok) throw new Error("File not found");
-
                 const text = await response.text();
                 document.getElementById('credits-content').innerText = text;
-                document.getElementById('credits-modal').style.display = 'flex';
             } catch (e) {
-                console.error("Credits Load Error:", e);
-                document.getElementById('credits-content').innerText = "Could not load 'assets/credits.txt'.\nCheck console for details.\n" + e.message;
-                document.getElementById('credits-modal').style.display = 'flex';
+                document.getElementById('credits-content').innerText = "Could not load 'assets/credits.txt'.\n" + e.message;
             }
+            document.getElementById('credits-modal').style.display = 'flex';
         }
 
         function closeCredits() {
             document.getElementById('credits-modal').style.display = 'none';
         }
 
-
-        let typingInterval;
-        let isTyping = false;
-        let currentFullText = "";
-
-        function typeText(text, callback) {
-            // Reset State
-            clearInterval(typingInterval);
-            introText.innerHTML = "";
-            nextArrow.style.display = "none";
-            actionBox.style.display = "none";
-            isTyping = true;
-            currentFullText = text;
-
-            let i = 0;
-            typingInterval = setInterval(() => {
-                introText.innerHTML += text.charAt(i);
-                i++;
-                if (i >= text.length) {
-                    clearInterval(typingInterval);
-                    isTyping = false;
-                    if (callback) callback();
-                    else nextArrow.style.display = "block";
-                }
-            }, 30); // Typing speed
-        }
-
-        function finishTypingNow() {
-            clearInterval(typingInterval);
-            introText.innerHTML = currentFullText;
-            isTyping = false;
-
-            // Check if there was a callback action needed
-            let s = steps[introStep - 1]; // Current step
-            if (s && s.action === "repo_link") {
-                nextArrow.style.display = "block";
-            } else if (s && s.action === "start_choice") {
-                showActions("LET'S GO!", "BUILD MY OWN", () => endIntro(), () => window.location.href = 'setup.html');
-            } else {
-                nextArrow.style.display = "block";
-            }
-        }
-
-        function nextIntroStep() {
-            if (introStep >= steps.length) {
-                endIntro();
-                return;
-            }
-
-            let s = steps[introStep];
-            introStep++;
-
-            typeText(s.text, () => {
-                // Action Logic (Callback when typing done normally)
-                if (s.action === "repo_link") {
-                    nextArrow.style.display = "block";
-                } else if (s.action === "start_choice") {
-                    showActions("LET'S GO!", "BUILD MY OWN", () => endIntro(), () => window.location.href = 'setup.html');
-                } else {
-                    nextArrow.style.display = "block";
-                }
-            });
-        }
-
-        function showActions(label1, label2, cb1, cb2) {
-            actionBox.style.display = "flex";
-            let b1 = document.getElementById('act-btn-1');
-            let b2 = document.getElementById('act-btn-2');
-            b1.innerText = label1; b1.onclick = cb1;
-
-            if (label2) {
-                b2.style.display = "inline-block";
-                b2.innerText = label2; b2.onclick = cb2;
-            } else {
-                b2.style.display = "none";
-            }
-        }
-
-        // Space/Enter Support for Intro
-        document.addEventListener('keydown', (e) => {
-            const introLayer = document.getElementById('intro-layer');
-            if (introLayer.style.display !== 'none' && introLayer.style.opacity !== '0') {
-                if (e.key === ' ' || e.key === 'Enter') {
-                    e.preventDefault(); // Prevent scrolling
-
-                    if (isTyping) {
-                        // Case 1: Currently Typing -> Finish Immediately
-                        finishTypingNow();
-                    } else {
-                        // Case 2: Waiting -> Next Step
-                        // If arrow visible OR if we are at start button
-                        if (nextArrow.style.display === 'block') {
-                            nextIntroStep();
-                        } else if (document.getElementById('intro-actions').style.display === 'flex') {
-                            if (document.getElementById('act-btn-2').style.display === 'none') {
-                                document.getElementById('act-btn-1').click();
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        // Handle Avatar Upload
-        document.getElementById('avatar-upload').addEventListener('change', (e) => {
-            let file = e.target.files[0];
-            if (file) {
-                let reader = new FileReader();
-                reader.onload = (evt) => {
-                    userAvatar = evt.target.result;
-                    // Update Guide Char to show preview
-                    guideChar.style.backgroundImage = `url('${userAvatar}')`;
-                    guideChar.style.height = "64px"; // Pixel art size
-                    guideChar.style.width = "64px";
-                    player.size = 15; // Make player bigger for sprite
-                    // We need to modify render to draw image instead of circle logic later
-                    // For now, proceed
-                    nextArrow.style.display = "block";
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
         function endIntro() {
-            document.getElementById('intro-layer').style.opacity = 0;
+            const overlay = document.getElementById('welcome-overlay');
+            overlay.classList.add('fading');
             setTimeout(() => {
-                document.getElementById('intro-layer').style.display = 'none';
-                // Start Audio context
+                overlay.style.display = 'none';
+                // Warm up the audio context
                 if (playerInstance && playerInstance.playVideo) {
                     playerInstance.playVideo();
                     setTimeout(() => playerInstance.pauseVideo(), 500);
@@ -1686,11 +1601,31 @@
             }, 500);
         }
 
-        // Start the Intro
-        setTimeout(nextIntroStep, 500);
 
         // START LOOP
         setInterval(draw, 16);
+
+        // Show welcome on load
+        // (welcome-overlay is visible by default in HTML, endIntro() hides it)
+
+        // ==========================================
+        // 12. UI IDLE HIDING
+        // ==========================================
+        let uiIdleTimeout;
+        const uiContainer = document.body;
+        function resetUiIdle() {
+            uiContainer.classList.remove('ui-idle');
+            clearTimeout(uiIdleTimeout);
+            uiIdleTimeout = setTimeout(() => {
+                uiContainer.classList.add('ui-idle');
+            }, 3000);
+        }
+        window.addEventListener('mousemove', resetUiIdle);
+        window.addEventListener('touchstart', resetUiIdle);
+        window.addEventListener('mousedown', resetUiIdle);
+        window.addEventListener('keydown', resetUiIdle);
+        window.addEventListener('wheel', resetUiIdle);
+        resetUiIdle();
 
     </script>
 </body>
