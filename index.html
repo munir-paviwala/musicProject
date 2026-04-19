@@ -624,22 +624,6 @@
         document.getElementById('info-toggle').addEventListener('click', () => {
             showWelcomeCard();
         });
-
-        // Setup Magic Edit Button
-        (function setupMagicEdit() {
-            const btn = document.getElementById('btn-magic-edit');
-            const hostname = window.location.hostname;
-            if (hostname.includes('.github.io')) {
-                const username = hostname.split('.')[0];
-                const parts = window.location.pathname.split('/').filter(p => p.length > 0);
-                const repo = parts.length > 0 ? parts[0] : '';
-                btn.href = `https://github.com/${username}/${repo}/edit/main/playlists.txt`;
-            } else {
-                // Local or generic fallback
-                btn.href = `https://github.com/munir-paviwala/musicForAll/edit/main/playlists.txt`;
-                btn.title = 'Fallback to original repo for local dev';
-            }
-        })();
     </script>
 
     <!-- === JOURNEY PANEL === -->
@@ -653,7 +637,7 @@
     </div>
 
     <!-- === ADMIN PANEL (From index.html) === -->
-    <div id="admin-panel" class="pointer-events-auto">
+    <div id="admin-panel" style="pointer-events: auto;">
         <div
             style="padding: 20px; border-bottom: 1px solid #30363d; display:flex; justify-content:space-between; align-items:center;">
             <h3 style="margin:0; color: white;">Library Manager</h3>
@@ -998,6 +982,23 @@
 
         // === ADMIN UI HANDLERS ===
         document.getElementById('btn-admin-toggle').onclick = () => document.getElementById('admin-panel').classList.toggle('open');
+        
+        // Setup Magic Edit Button (now that DOM is ready)
+        (function setupMagicEdit() {
+            const btn = document.getElementById('btn-magic-edit');
+            if (!btn) return;
+            const hostname = window.location.hostname;
+            if (hostname.includes('.github.io')) {
+                const username = hostname.split('.')[0];
+                const parts = window.location.pathname.split('/').filter(p => p.length > 0);
+                const repo = parts.length > 0 ? parts[0] : '';
+                btn.href = `https://github.com/${username}/${repo}/edit/main/playlists.txt`;
+            } else {
+                // Local or generic fallback
+                btn.href = `https://github.com/munir-paviwala/musicForAll/edit/main/playlists.txt`;
+                btn.title = 'Fallback to original repo for local dev';
+            }
+        })();
         document.getElementById('btn-admin-close').onclick = () => document.getElementById('admin-panel').classList.remove('open');
 
         // === ADMIN PANEL LOGIC ===
