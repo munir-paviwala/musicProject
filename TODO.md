@@ -1,4 +1,3 @@
-The edit playlist button has a blue hue. JUST MAKE IT NORMAL?   
 
 
 
@@ -19,6 +18,8 @@ Done:
 [x] An algorithm with endless option - one that can be used to generate a playlist of any length? (resolved by auto-regeneration on path end)
 
 - Add placards/postcards to each region that has a name or something that can show what is going on
+The edit playlist button has a blue hue. JUST MAKE IT NORMAL?   
+
 
 Dropped: 
 

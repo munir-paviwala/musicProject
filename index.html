@@ -256,25 +256,24 @@
         /* === PLACARD UI === */
         #placard-overlay {
             position: absolute;
-            bottom: 40px;
+            bottom: 140px; /* Moved up to clear now-playing */
             left: 50%;
             transform: translateX(-50%) translateY(20px);
-            max-width: 600px;
-            width: 80%;
-            background: rgba(15, 20, 25, 0.95);
-            border: 2px solid #536DFE;
-            box-shadow: 0 0 20px rgba(83, 109, 254, 0.4), inset 0 0 10px rgba(0, 0, 0, 0.8);
-            border-radius: 12px;
-            padding: 20px 30px;
+            max-width: 450px; /* Slimmer */
+            width: 85%;
+            background: rgba(15, 20, 25, 0.92);
+            border: 1.5px solid #536DFE;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            padding: 12px 20px; /* Compact padding */
             color: #fff;
             z-index: 85;
-            /* Below now-playing */
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px;
             text-align: center;
         }
 
@@ -286,20 +285,34 @@
 
         #placard-title {
             font-family: 'Press Start 2P', cursive;
-            font-size: 14px;
+            font-size: 11px; /* Smaller */
             color: #00E5FF;
             margin: 0;
-            text-shadow: 2px 2px 0 #000;
+            text-shadow: 1px 1px 0 #000;
             text-transform: uppercase;
         }
 
         #placard-desc {
             font-family: 'Helvetica Neue', sans-serif;
-            font-size: 15px;
-            line-height: 1.6;
-            color: #ddd;
+            font-size: 13px; /* Smaller */
+            line-height: 1.4;
+            color: #ccc;
             margin: 0;
             white-space: pre-wrap;
+        }
+
+        @media (max-width: 600px) {
+            #now-playing {
+                width: 90%;
+                bottom: 20px;
+                padding: 10px 15px;
+            }
+            #placard-overlay {
+                bottom: 125px;
+                padding: 8px 15px;
+            }
+            #placard-title { font-size: 9px; }
+            #placard-desc { font-size: 11px; }
         }
 
         /* === START SCREEN === */
@@ -605,9 +618,6 @@
     <div id="top-right-controls"
         style="position: absolute; top: 20px; right: 20px; z-index: 10; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; pointer-events: none;">
         <button id="btn-admin-toggle" class="btn" style="pointer-events: auto;">⚙️ Manage Data</button>
-
-        <a id="btn-magic-edit" class="btn" style="text-decoration: none; pointer-events: auto;" target="_blank">⚙️ Edit
-            Playlists</a>
     </div>
 
     <script>
@@ -654,11 +664,14 @@
             <!-- THE PIPELINE -->
             <div class="admin-section">
                 <span class="admin-label">1. Add Music</span>
-                <p style="font-size: 0.85em; color: #8b949e; margin-bottom: 10px;">
-                    This galaxy is built automatically. To add new playlists, open your repository on GitHub, edit
-                    <code>playlists.txt</code>, and paste your YouTube playlist links. The automated bots will fetch the
-                    songs and rebuild the map for you.
+                <p style="font-size: 0.85em; color: #8b949e; margin-bottom: 15px;">
+                    This galaxy is built automatically. Add your YouTube playlist links directly to your repository and
+                    the automated bots will fetch the songs and rebuild the map for you.
                 </p>
+                <a id="btn-magic-edit" class="btn"
+                    style="text-decoration: none; display: flex; justify-content: center; align-items: center; width: 100%; box-sizing: border-box;"
+                    target="_blank">⚙️ Edit
+                    Playlists on GitHub</a>
             </div>
 
             <!-- STEP 2: CURATOR NOTES -->
@@ -697,8 +710,6 @@
     <!-- === PLAYER UI === -->
     <div id="now-playing">
         <div id="np-title">Song Title</div>
-        <div id="np-status" style="font-size: 0.8em; color: cyan; margin-bottom: 5px; display:none;">AUTOPILOT:
-            LISTENING...</div>
         <div id="np-note" style="color:#aaa; font-style:italic; font-size:0.9em;"></div>
     </div>
 
@@ -1178,15 +1189,11 @@
             if (currentSongId) {
                 // Already playing? Queue tour.
                 isAutopilot = true; autopilotIndex = 0; autopilotState = "LISTENING";
-                document.getElementById('np-status').style.display = "block";
-                document.getElementById('np-status').innerText = "TOUR QUEUED: Waiting for current song...";
                 document.getElementById('skip-btn').style.display = 'flex';
             } else {
                 // Not playing. Move to first point.
                 isAutopilot = true; autopilotIndex = 0; autopilotState = "MOVING";
                 document.getElementById('skip-btn').style.display = 'flex';
-                document.getElementById('np-status').style.display = "block";
-                document.getElementById('np-status').innerText = "AUTOPILOT: MOVING TO START...";
             }
             camera.targetZoom = 0.6; // Slightly zoomed out for view
         }
@@ -1201,14 +1208,11 @@
             if (isAutopilot) {
                 if (currentSongId) {
                     autopilotState = "LISTENING";
-                    document.getElementById('np-status').style.display = "block";
-                    document.getElementById('np-status').innerText = "DRIFTING...";
                     document.getElementById('skip-btn').style.display = 'flex';
                 } else { autopilotState = "MOVING"; }
                 camera.targetZoom = 0.8;
             } else {
                 document.getElementById('skip-btn').style.display = 'none';
-                document.getElementById('np-status').style.display = 'none';
             }
         }
 
@@ -1228,7 +1232,6 @@
             } else {
                 autopilotState = "MOVING";
                 document.getElementById('skip-btn').style.display = 'flex';
-                document.getElementById('np-status').innerText = "MOVING TO NEXT STOP...";
             }
         }
 
@@ -1238,7 +1241,6 @@
             document.getElementById('auto-btn').style.display = 'none';
             document.getElementById('skip-btn').style.display = 'none';
             document.getElementById('auto-btn').innerText = "▶ Let It Flow";
-            document.getElementById('np-status').style.display = 'none';
             updateMediaSession(false);
         } function clearTrace() { pathHistory = []; }
 
@@ -1271,8 +1273,6 @@
                             autopilotIndex++;
                         } else {
                             autopilotState = "LISTENING";
-                            document.getElementById('np-status').style.display = "block";
-                            document.getElementById('np-status').innerText = "AUTOPILOT: LISTENING...";
                             document.getElementById('skip-btn').style.display = 'flex';
                         }
                     } else {
@@ -1325,11 +1325,12 @@
 
             // Update Placard UI
             const placardEl = document.getElementById('placard-overlay');
-            if (closestAnchor && closestAnchor.description) {
+            if (closestAnchor) {
                 if (currentPlacard !== closestAnchor.id) {
                     currentPlacard = closestAnchor.id;
                     document.getElementById('placard-title').innerText = closestAnchor.name;
-                    document.getElementById('placard-desc').innerText = closestAnchor.description;
+                    document.getElementById('placard-desc').innerText = closestAnchor.description || "";
+                    document.getElementById('placard-desc').style.display = closestAnchor.description ? 'block' : 'none';
                     placardEl.classList.add('visible');
                 }
             } else {
