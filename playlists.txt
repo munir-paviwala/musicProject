@@ -1,4 +1,4 @@
-# Add your YouTube Playlist URLs below (one per line).
+  # Add your YouTube Playlist URLs below (one per line).
 # The GitHub Action will automatically fetch the songs and rebuild your galaxy map.
 # Empty lines and lines starting with # are ignored.
 
@@ -33,5 +33,20 @@ https://music.youtube.com/playlist?list=PLkyLhAV5zhSBDJ-8NluicQlSqMoSLieXz&si=Lz
 https://music.youtube.com/playlist?list=PLkyLhAV5zhSAJinbZ2MrIEXd0NwAF_0ES&si=s1FBVHharc4pbTAc
 https://music.youtube.com/playlist?list=LRSRHunfMzMttxTk4wtCTElPjQm6PRByT8GVv&si=qe9ij-jYotcoD5md
 https://music.youtube.com/playlist?list=LRSRGABEX_6sd0AaGWsBz3hSwSJDNypcOnQwF&si=6vCSoy6jAFoYNX5y
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSDvsNuO5fC8MChBaa7AUxzA&si=gcI5UScpQygj0bt6
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSDujdhxgarudJFGIJUd3JRr&si=ADgmZ_Dj-blxNJIX
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSCuD2Ao1af9YcL8z4ojx1c5&si=JP-qJ9OXmopTW5i3
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSC3bWZ7LSslNzoNcRc8TkEu&si=sXlI-hSKXozkzRB5
+https://music.youtube.com/playlist?list=OLAK5uy_kPvv2gcqKDkEvHEpPSKX_lTGsaEOYfQVw&si=J6a37azbQOxGieeT
+https://music.youtube.com/playlist?list=PLKQ_1kRQFRcUYdsXtx3LIbhWGnhgJxzum&si=Xmi6-5romRLHXpbm
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSBd-nHY1-A2j5_M_bMwwn_D&si=c1nVmxMaeBh1Ai0c
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSBcrqJunwQIDK7QxSy7dFGK&si=nd-TzrRlZEHr-bHU
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSBRaZRJKVH2k6YBgjF_viTn&si=lgkC4v8c4griqBNO
+https://music.youtube.com/playlist?list=LRSRgKMB62UyvWi_rNpnLIIOApB-bg0_f8qQY&si=rDG8EqHYNuZvqYvh
+https://music.youtube.com/playlist?list=LRYR_ijskybJKrdQIqgtGf4LVKm5-O8iPyHlo&si=MgMPzpB5C6Ht5YSh
+https://music.youtube.com/playlist?list=LRYRrd5OFDw05R1BbzrtgUC2odPi7S26eXmC0&si=rGv_DOWavIP6jCEb
+https://music.youtube.com/playlist?list=LRYRa5hX8iQo8XPP-rY3QrdTNGhbdn2bw_fFt&si=1vTMllZJUdKGirBo
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSCiQZsEeEg0Y--XMyZ4ErzE&si=c5IZcXnCSPNthsCv
+https://music.youtube.com/playlist?list=PLkyLhAV5zhSBDJ-8NluicQlSqMoSLieXz&si=ivO0VGUoThA3AvzH
 
 
