@@ -901,8 +901,11 @@
                     let d = Math.hypot(ps.x - center.x, ps.y - center.y);
                     if (d > maxDist) maxDist = d;
                 });
-                let a = anchors.find(a => a.id === p.id);
-                if (a) a.radius = Math.round(maxDist + 150);
+                let a = anchors.find(anc => anc.id === p.id); if (a) {
+                    // Safety Clamp: Prevent clusters from exploding due to distant outlier songs
+                    let finalRadius = Math.round(maxDist + 60);
+                    a.radius = Math.min(finalRadius, 2500); 
+                }
             });
 
             appState.anchors = anchors;
@@ -951,9 +954,28 @@
 
         function parseData(data) {
             if (data.playlists) {
-                appState.playlists = data.playlists;
+                // Root Cause Fix: Deduplicate playlists and anchors by ID on load
+                // to prevent coordinate cross-contamination.
+                const uniquePlaylists = [];
+                const pIds = new Set();
+                data.playlists.forEach(p => {
+                    if (!pIds.has(p.id)) {
+                        uniquePlaylists.push(p);
+                        pIds.add(p.id);
+                    }
+                });
+                appState.playlists = uniquePlaylists;
+
                 if (data.anchors) {
-                    appState.anchors = data.anchors;
+                    const uniqueAnchors = [];
+                    const aIds = new Set();
+                    data.anchors.forEach(a => {
+                        if (!aIds.has(a.id)) {
+                            uniqueAnchors.push(a);
+                            aIds.add(a.id);
+                        }
+                    });
+                    appState.anchors = uniqueAnchors;
 
                     // Flatten songs if anchors exist (assume already clustered)
                     appState.songs = [];
@@ -1310,7 +1332,7 @@
                 grad.addColorStop(0, a.color);
                 grad.addColorStop(1, "rgba(0,0,0,0)");
                 ctx.fillStyle = grad;
-                ctx.globalAlpha = 0.8; // Slightly softer than before to keep focus on songs
+                ctx.globalAlpha = 0.45; // Softer glow to prevent "blinding" overlaps
                 ctx.beginPath();
                 ctx.arc(a.x, a.y, a.radius, 0, Math.PI * 2);
                 ctx.fill();
