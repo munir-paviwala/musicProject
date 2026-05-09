@@ -257,16 +257,19 @@
         /* === PLACARD UI === */
         #placard-overlay {
             position: absolute;
-            bottom: 140px; /* Moved up to clear now-playing */
+            bottom: 140px;
+            /* Moved up to clear now-playing */
             left: 50%;
             transform: translateX(-50%) translateY(20px);
-            max-width: 450px; /* Slimmer */
+            max-width: 450px;
+            /* Slimmer */
             width: 85%;
             background: rgba(15, 20, 25, 0.92);
             border: 1.5px solid #536DFE;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
             border-radius: 8px;
-            padding: 12px 20px; /* Compact padding */
+            padding: 12px 20px;
+            /* Compact padding */
             color: #fff;
             z-index: 85;
             opacity: 0;
@@ -286,7 +289,8 @@
 
         #placard-title {
             font-family: 'Press Start 2P', cursive;
-            font-size: 11px; /* Smaller */
+            font-size: 11px;
+            /* Smaller */
             color: #00E5FF;
             margin: 0;
             text-shadow: 1px 1px 0 #000;
@@ -295,7 +299,8 @@
 
         #placard-desc {
             font-family: 'Helvetica Neue', sans-serif;
-            font-size: 13px; /* Smaller */
+            font-size: 13px;
+            /* Smaller */
             line-height: 1.4;
             color: #ccc;
             margin: 0;
@@ -308,12 +313,19 @@
                 bottom: 20px;
                 padding: 10px 15px;
             }
+
             #placard-overlay {
                 bottom: 125px;
                 padding: 8px 15px;
             }
-            #placard-title { font-size: 9px; }
-            #placard-desc { font-size: 11px; }
+
+            #placard-title {
+                font-size: 9px;
+            }
+
+            #placard-desc {
+                font-size: 11px;
+            }
         }
 
         /* === START SCREEN === */
@@ -904,7 +916,7 @@
                 let a = anchors.find(anc => anc.id === p.id); if (a) {
                     // Safety Clamp: Prevent clusters from exploding due to distant outlier songs
                     let finalRadius = Math.round(maxDist + 60);
-                    a.radius = Math.min(finalRadius, 2500); 
+                    a.radius = Math.min(finalRadius, 2500);
                 }
             });
 
@@ -1005,7 +1017,7 @@
 
         // === ADMIN UI HANDLERS ===
         document.getElementById('btn-admin-toggle').onclick = () => document.getElementById('admin-panel').classList.toggle('open');
-        
+
         // Setup Magic Edit Button (now that DOM is ready)
         (function setupMagicEdit() {
             const btn = document.getElementById('btn-magic-edit');
